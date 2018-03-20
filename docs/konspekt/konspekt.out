@@ -1,8 +1,7 @@
-\BOOKMARK [1][-]{section.1}{Opis problemu badawczego}{}% 1
-\BOOKMARK [1][-]{section.2}{Cel badania:}{}% 2
-\BOOKMARK [1][-]{section.3}{Planowane modele, pomys\233y, algorytmy}{}% 3
-\BOOKMARK [2][-]{subsection.3.1}{Reinforcement learning}{section.3}% 4
-\BOOKMARK [2][-]{subsection.3.2}{Og\363lny zarys dzia\233ania programu}{section.3}% 5
-\BOOKMARK [2][-]{subsection.3.3}{Deep Q-learning}{section.3}% 6
-\BOOKMARK [1][-]{section.4}{Opis danych}{}% 7
-\BOOKMARK [1][-]{section.5}{Metody weryfikacji rezultat\363w}{}% 8
+\BOOKMARK [1][-]{section.1}{Opis i cel projektu}{}% 1
+\BOOKMARK [1][-]{section.2}{Planowane modele, pomys\233y, algorytmy}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Uczenie przez wzmocnienie}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Architektura programu}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Deep Q-learning}{section.2}% 5
+\BOOKMARK [1][-]{section.3}{Opis danych}{}% 6
+\BOOKMARK [1][-]{section.4}{Weryfikacja rezultat\363w}{}% 7

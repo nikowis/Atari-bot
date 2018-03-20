@@ -38,7 +38,7 @@ bindingoffset=10mm, top=20mm, bottom=20mm}
 \begin{tabular}{p{4cm}p{9cm}}
 \textit{Przedmiot:} &\textbf {Metody sztucznej inteligencji 2} \\
 \\
-\textit{Projekt:} &\textbf {Agent do grania w gry przy użyciu uczenia wzmocnionego (reinforcement learning)} \\
+\textit{Projekt:} &\textbf {Agent do grania w gry Atari przy użyciu uczenia wzmocnionego (reinforcement learning)} \\
 \\
 \textit{Autorzy:} &\textbf {Michał~Kołodziej \newline Nikodem~Wiśniewski} \\
 \\
@@ -55,26 +55,26 @@ bindingoffset=10mm, top=20mm, bottom=20mm}
 \maketitle
 
 
-\section{Opis problemu badawczego}
-Chcemy zaprogramować agenta komputerowego grającego w gry. Za pomocą uczenia przez wzmacnianie (reinforcement learning), będzie on trenował aby osiągać coraz to lepsze wyniki, dochodząc (mamy nadzieję) do poziomu ludzkiego gracza. Agent będzie miał styczność z wieloma grami Atari, przy czym po wytrenowaniu go w jednej grze, powinien on szybciej się uczyć grać w kolejną. 
-
-
-\section{Cel badania:}
-Nauczenie agenta granie w wiele gier Atari na poziomie zadowalającym, tj. jak najbliżej zbliżonym do możliwości ludzkich bądź lepszym.
+\section{Opis i cel projektu}
+Zadaniem tego projektu jest stworzenie agenta komputerowego grającego w gry z Atari 2600. Agent będzie trenowany za pomocą uczenia przez wzmacnianie (reinforcement learning) poprzez samoczynne granie w wybrane gry. Agent będzie miał styczność z wieloma grami z konsoli Atari, przy czym po wytrenowaniu się w jednej grze, powinien on szybciej się uczyć grać w kolejną podobną grę. 
+Celem projektu jest stworzenie agenta, który nauczy się grać w kilka gier na poziomie jak najbardziej zbliżonym do ludzkiego bądź lepszym.
 
 \section{Planowane modele, pomysły, algorytmy}
-\subsection{Reinforcement learning}
-Reinforcement learning to obszar uczenia maszynowego inspirowany psychologią behawioralną, w którym agenci podejmują akcje w środowisku, w taki sposób aby maksymalizować jakiegoś rodzaju sumaryczną nagrodę.
-Patrząc więc na nasz problem w kontekście reinforcement learning możemy zdefiniować :
+
+\subsection{Uczenie przez wzmocnienie}
+Reinforcement learning to obszar uczenia maszynowego inspirowany psychologią behawioralną, w którym agenci podejmują akcje w środowisku, w taki sposób aby maksymalizować jakiegoś rodzaju sumaryczną nagrodę. Początkowo agent posiada wiedze tylko o aktualnym stanie środowiska oraz o możliwych do wykonania akcjach.
+\\\
+W kontekście realizowanego projektu możemy zdefiniować:
 \begin{enumerate}
-\item \textbf{Cel agenta}: Ukończenie gry z jak największym wynikiem
-\item \textbf{Stan środowiska}: Zestaw pikseli z gry Atari
-\item \textbf{Akcje}: Czynności możliwe do zrealizowania przez gracza
-\item \textbf{Nagroda}: Zwiększenie/zmniejszenie wyniku co krok czasu
+\item \textbf{Cel agenta}: ukończenie gry z jak największym wynikiem
+\item \textbf{Stan środowiska}: zestaw pikseli z ekranu gry
+\item \textbf{Akcje}: czynności możliwe do zrealizowania przez gracza
+\item \textbf{Nagroda}: zwiększenie wyniku
+\item \textbf{Kara}: przegranie gry
 \end{enumerate}
 
-\subsection{Ogólny zarys działania programu}
-Planujemy, aby program składał się z następujących modułów:
+\subsection{Architektura programu}
+Program będzie składał się z następujących modułów:
 \begin{enumerate}
 \item \textbf{Moduł komunikacji z użytkownikiem}
 \item \textbf{Moduł komunikacji z grami Atari} za pomocą, którego będziemy włączali/wyłączali grę, a także przesyłali informacje o stanie gry do modułu agenta i symulowali akcje podjęte przez agenta w grze.
@@ -82,14 +82,12 @@ Planujemy, aby program składał się z następujących modułów:
 \end{enumerate}
 
 \subsection{Deep Q-learning}
-Reinforcement learning nie odpowiada na pytanie w jaki sposób wybrać optymalną akcję dla danego stanu środowiska. W tym celu mamy zamiar użyć metody deep Q-learning, która polega na użyciu aproksymatora funkcji, który będzie głęboką siecią neuronową. 
-\\\\Wybraliśmy deep q-learning, ponieważ Google Deep-mind użyło właśnie tej metody w rozwiązaniu takiego samego problemu, więc wiemy, że jest to możliwe. Wadą tego pomysłu jest nasz brak doświadczenia z sieciami neuronowymi. Żaden z nas nie implementował przedtem sieci neuronowej, co doprowadzi do problemów podczas implementacji programu.
+Reinforcement learning nie odpowiada na pytanie w jaki sposób wybrać optymalną akcję dla danego stanu środowiska. W tym celu użyta zostanie metoda \textit{deep Q-learning}, która polega na użyciu aproksymatora funkcji, który będzie głęboką siecią neuronową. Metoda ta była użyta przy rozwiązaniu identycznego problemu grania w gry Atari 2600 przez firmę \textit{Google DeepMind}
 
 \section{Opis danych}
-Jako dane wejściowe dla agenta, będziemy pobierać kolejne klatki (zestawy pikseli) gry Atari, w którą będzie aktualnie grać. Planujemy używać 4 ostatnich klatek naraz, przy wyborze następnej akcji przez naszego agenta (tak aby miał pewien wzgląd na to co się w ostatnim czasie zmieniło). Na wyjściu otrzymamy liczbę punktów, którą agent uzyskał w każdym epizodzie treningu z grą, oraz czas trwania epizodu.
+Jako dane wejściowe dla agenta, pobierane będą kolejne klatki (zestawy pikseli) gry, w którą będzie aktualnie grać agent. Użycie ostatnich czterech klatek zamiast jednej, przy wyborze następnej akcji przez agenta pozwoli mu na szerszy obraz zmian w środowisku. Danymi wyjściowymi będą czas gry oraz uzyskana przez agenta liczba punktów.
 
-
-\section{Metody weryfikacji rezultatów}
-Rezultaty naszego agenta w danej grze Atari reprezentować będzie liczba punktów, którą uzyska w danej grze, w różnych momentach treningu z tą grą. Jako, że naszym celem jest nauczenie agenta grać na poziomie ludzkim lub lepszym, porównamy jego wyniki z wynikami uzyskanymi przez nas w danych grach, a także z najwyższymi wynikami znalezionymi w internecie (np. ze strony: http://www.jvgs.net/2600/top50.htm). \\ Jeżeli wyniki będą zbliżone do naszych bądź wyższe, ale nie większe od najlepszego wyniku ze strony, którą wybierzemy jako odnośnik do najlepszych wyników, uznamy że agent gra na poziomie ludzkim. Jeśli osiągnie wynik lepszy, uznamy że osiągnął poziom ponad człowiekiem.
+\section{Weryfikacja rezultatów}
+Wyniki agenta w danej grze Atari reprezentować będzie liczba punktów, którą uzyska w danej grze. Jako, że celem projektu jest stworzenie agenta, który nauczy się grać na poziomie ludzkim lub lepszym, jego wyniki zostaną porównane z wynikami uzyskanymi przez nas w danych grach, a także z najwyższymi wynikami znalezionymi w internecie (np. ze strony: http://www.jvgs.net/2600/top50.htm). \\ Jeżeli wyniki będą zbliżone do naszych bądź wyższe, ale nie większe od najlepszego wyniku ze strony, którą wybierzemy jako odnośnik do najlepszych wyników, uznamy że agent gra na poziomie ludzkim. Jeśli osiągnie wynik lepszy, uznamy że osiągnął poziom ponad człowiekiem.
 
 \end{document}
