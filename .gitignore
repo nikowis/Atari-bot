@@ -110,3 +110,4 @@ venv1/
 /docs/*/*.synctex.gz
 docs/*/*.dvi
 docs/*/*.toc
+*.out
