@@ -107,11 +107,11 @@ Dla przejścia $<s, a, r, s'>$ aktualizujemy naszą sieć następującym algoryt
 
 \subsubsection{Experience replay}
 
-W trakcie gry wszystkie doświadczenia <s, a, r, s'> zapisujemy w pamięci. Przy trenowaniu sieci losowe próbki są używane zamiast ostatnich przejść. W ten sposób łamiemy podobieństwo kolejnych trenujących gier, które mogą doprowadzać do minimów lokalnych w sieci.
+Podczas grania kolejne stany są często bardzo podobne i mało się różnią. Może to powodować iż sieć zbiegnie się rozwiązaniami dla konkretnej części rozgrywki i wpadnie w minimum lokalne. Aby temu zapobiec w trakcie gry wszystkie doświadczenia <s, a, r, s'> zapisujemy w pamięci, do uzyskania miliona przejść.  Przy trenowaniu sieci wraz z naszym obecnym przejściem pobieramy z pamięci losowe próbki które są używane do jej wytrenowania. Sieć optymalizujemy w zbiorach 32 przejść. W ten sposób łamiemy podobieństwo kolejnych stanów, przypominając sieci inne elementy rozgrywki niż ten obecny. 
 
 \subsubsection{Exploration-exploitation dilemma}
 
-Podczas inicjalizacji nasza sieć jest wypełniania losowymi liczbami więc początkowo wybierane akcje również będą losowe. Jest to czysta eksploracja. W przypadku gdy nasza sieć zbiega się do niektórych rozwiązań nasz algorytm nie będzie przeszukiwał nowych ścieżek i zachowań. Aby temu zapobiec skorzystamy z $\varepsilon\ greedy\ exploration$ z prawdopodobieństwem $\varepsilon$ na wykokanie losowej akcji. W oryginalnym projekcie firmy DeepMind wykorzystano zmienne w czasie $\varepsilon$ malejące od 1 do 0.1.
+Podczas inicjalizacji nasza sieć jest wypełniania losowymi liczbami więc początkowo wybierane akcje również będą losowe. Jest to czysta eksploracja. W przypadku gdy nasza sieć zbiega się do niektórych rozwiązań nasz algorytm nie będzie przeszukiwał nowych ścieżek i zachowań. Aby temu zapobiec skorzystamy z $\varepsilon\ greedy\ exploration$ z prawdopodobieństwem $\varepsilon$ na wykokanie losowej akcji. W oryginalnym projekcie firmy DeepMind wykorzystano zmienne $\varepsilon$ malejące liniowo przez pierwsze milion klatek od 1 do 0.1.
 
 \subsubsection{Algorytm trenowania}
 
