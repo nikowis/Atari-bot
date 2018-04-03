@@ -100,7 +100,7 @@ Dla przejścia $<s, a, r, s'>$ aktualizujemy naszą sieć następującym algoryt
 \begin{enumerate}
 \item Wykonujemy feedforward dla obecnego stanu $s$ aby uzyskać przewidywane Q-wartości dla każdej akcji. Oznaczmy wyliczone w ten sposób wartości $Q'(s,a)$.
 \item Wykonujemy feedforward dla kolejnego stanu $s'$ i wybieramy wartość dla najlepszej akcji $max_{a'}Q(s',a')$.
-\item Wyliczamy poprawną wartość funkcji $Q$ dla akcji $a$ korzystając ze wzoru: $$Q(s, a) = r + max_{a'}Q(s',a')$$ Dla innych akcji zostawiamy wartość funkcji $Q$ uzyskaną z naszej sieci.
+\item Wyliczamy poprawną wartość funkcji $Q$ dla akcji $a$ korzystając ze wzoru: $$Q(s, a) = r + \gamma max_{a'}Q(s',a')$$ Dla innych akcji zostawiamy wartość funkcji $Q$ uzyskaną z naszej sieci.
 \item Liczymy funkcję straty (loss function) wzorem $$L=\frac{1}{2}[Q(s,a)-Q'(s,a)]^2=\frac{1}{2}[r+\gamma max_{a'}Q(s',a')-Q'(s,a)]^2$$ Uwaga: funkcja straty dla akcji innych niż $a$ przez powyższe założenie wynosi 0. 
 \item Aktualizujemy wagi w sieci używając backpropagation
 \end{enumerate}
@@ -137,6 +137,14 @@ Podczas inicjalizacji nasza sieć jest wypełniania losowymi liczbami więc pocz
 
 \end{lstlisting}
 
+\subsubsection{Unikanie dywergencji}
+
+W związku z tym iż nasz algorytm przewiduje sam siebie rekurencyjnie może to doprowadzać do dywergencji. Przypomnijmy wzór: 
+
+$$Q(s, a) = r + \gamma max_{a'}Q(s',a')$$
+
+Aby ustabilizować zbieganie się modelu, co 10 000 iteracji będziemy zapisywać aktualny stan modelu aby za jego pomocą przewidywać wartości rekurencyjne. Takie działanie powoduje znaczną poprawę w szybkości uczenia się modelu i jego stabilności.
+
 \begin{figure}[H]
 \centering \includegraphics[scale=0.7]{deep_mind_architecture.PNG}
 \caption{Sieć neuronowa firmy Deep Mind}
@@ -145,7 +153,7 @@ Podczas inicjalizacji nasza sieć jest wypełniania losowymi liczbami więc pocz
 
 
 \begin{figure}[H]
-\centering \includegraphics[scale=0.6]{hyperparameters.PNG}
+\centering \includegraphics[scale=0.5]{hyperparameters.PNG}
 \caption{Hyperparameters}
 \label{simple1}
 \end{figure}
