@@ -5,12 +5,11 @@ import numpy as np
 
 learning_rate = 0.00025
 batch_size = 32
-n_classes = 18
 memory = []
 img_size = 84 * 84
 
 
-def model(x):
+def model(x, n_classes):
     weights = {
         # filtr 8x8, 1 wejsciowy obraz, 32 output
         'W_conv1': tf.Variable(tf.random_normal([8, 8, 1, 32])),
@@ -48,8 +47,8 @@ def model(x):
 
 def train_neural_network(x,y):
     prediction = model(x)
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
-    optimizer = tf.train.GradientDescentOptimizer().minimize(cost)
+    loss = tf.losses.mean_squared_error(labels=y, prediction=prediction)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss)
 
     hm_epochs = 10
     with tf.Session() as sess:
