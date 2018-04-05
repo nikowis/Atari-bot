@@ -1,35 +1,36 @@
 # Import the gym module
 import gym
-import numpy as np
+import helpers
+import atari_model
 import tensorflow as tf
-import scipy.misc
-
-def to_grayscale(img):
-    return np.mean(img, axis=2).astype(np.uint8)
-
-
-def downsample(img):
-    return img[::2, ::2]
-
-
-def preprocess(img):
-    return to_grayscale(downsample(img))
-
 
 # Create a breakout environment
+img_size = 105 * 80
 env = gym.make('BreakoutDeterministic-v4')
 # Reset it, returns the starting frame
-frame = env.reset()
+frames = env.reset()
 # Render
 env.render()
 
+batch_size = 32
+n_classes = env.action_space.n
+memory = []
+
+x = tf.placeholder(tf.float32, [None, img_size])
+y = tf.placeholder(tf.float32, [None, n_classes])
+
+model = atari_model.model(x, n_classes)
+
 is_done = False
+i = 0
+state, reward, is_done, _ = env.step(env.action_space.sample())
 while not is_done:
-    # Perform a random action, returns the new frame, reward and whether the game is over
+    i += 1
+    # # Perform a random action, returns the new frame, reward and whether the game is over
     frame, reward, is_done, _ = env.step(env.action_space.sample())
+    reward = helpers.transform_reward(reward)
+    frame = helpers.preprocess(frame)
 
-    frame = preprocess(frame)
-
-    #Render
+    # Render
     if not is_done:
         env.render()
