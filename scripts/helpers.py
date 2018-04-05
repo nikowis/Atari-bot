@@ -16,3 +16,7 @@ def get_epsilon_for_iteration(iteration):
         return 0.1
     else:
         return 1 - (0.9 / 1000000) * iteration
+
+
+def normalize(frame):
+    return frame / 255
