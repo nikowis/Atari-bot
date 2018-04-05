@@ -1,16 +1,10 @@
 import numpy as np
-
-
-def to_grayscale(img):
-    return np.mean(img, axis=2).astype(np.uint8)
-
-
-def downsample(img):
-    return img[::2, ::2]
+from skimage.transform import resize
+from skimage.color import rgb2gray
 
 
 def preprocess(img):
-    return to_grayscale(downsample(img))
+    return resize(rgb2gray(img), (110, 84))[13:110 - 13, :]
 
 
 def transform_reward(reward):

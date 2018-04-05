@@ -1,7 +1,10 @@
 import keras
 import numpy as np
 import helpers
+import random
 
+
+memory = []
 
 def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_terminal):
     """Do one deep Q learning iteration.
@@ -66,6 +69,10 @@ def atari_model(n_actions):
     model.compile(optimizer, loss='mse')
 
     return model
+
+
+def choose_best_action(model, state):
+    return 1
 
 
 def q_iteration(env, model, state, iteration):
