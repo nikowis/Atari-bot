@@ -86,8 +86,8 @@ def q_iteration(env, model, state, iteration):
         action = choose_best_action(model, state)
 
     # Play one game iteration (note: according to the next paper, you should actually play 4 times here)
-    new_frame, reward, is_done, _ = env.step(action)
-    memory.add(state, action, new_frame, reward, is_done)
+    new_state, reward, is_done, _ = env.step(action)
+    memory.add(state, action, new_state, reward, is_done)
 
     # Sample and fit
     batch = memory.sample_batch(32)

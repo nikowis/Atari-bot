@@ -46,25 +46,14 @@ def model(x, n_classes):
     return output
 
 
-def train_neural_network(x,y):
-    prediction = model(x)
-    loss = tf.losses.mean_squared_error(labels=y, prediction=prediction)
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss)
+def train_neural_network(model, loss, optimizer, x, y, frame, action, reward, next_frame):
 
-    hm_epochs = 10
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
 
-        for epoch in range(hm_epochs):
-            epoch_loss = 0
-            for _ in range(int(mnist.train.num_examples / batch_size)):
-                epoch_x, epoch_y = mnist.train.next_batch(batch_size)
-                _, c = sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-                epoch_loss += c
+        for _ in range(int(mnist.train.num_examples / batch_size)):
+            epoch_x, epoch_y = mnist.train.next_batch(batch_size)
+            _, c = sess.run([optimizer, loss], feed_dict={x: epoch_x, y: epoch_y})
+            epoch_loss += c
 
-            print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
-
-        correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
-
-        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        print('Accuracy:', accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
+        print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)

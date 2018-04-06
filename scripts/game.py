@@ -41,29 +41,33 @@ with tf.Session() as sess:
         # Render
         env.render()
         total_reward = 0
-        frame, reward, is_done, _ = env.step(env.action_space.sample())
+        state, reward, is_done, _ = env.step(env.action_space.sample())
         reward = helpers.transform_reward(reward)
-        frame = helpers.preprocess(frame)
+        state = helpers.preprocess(state)
         total_reward += reward
-
+        next_state = state
         iteration = 0
         while not is_done:
             iteration += 1
             epsilon = helpers.get_epsilon_for_iteration(iteration)
             epsilon = 0
-            frame = np.reshape(frame, (1, frame.shape[0], frame.shape[1]))
+            state = next_state
+            state = np.reshape(state, (1, state.shape[0], state.shape[1]))
             # Choose the action
             if random.random() < epsilon:
                 action = env.action_space.sample()
             else:
-                action = sess.run(model, feed_dict={x: frame})
+                action = sess.run(model, feed_dict={x: state})
                 action = np.argmax(action)
 
-            frame, reward, is_done, _ = env.step(action)
+            next_state, reward, is_done, _ = env.step(action)
 
             reward = helpers.transform_reward(reward)
-            frame = helpers.preprocess(frame)
+            next_state = helpers.preprocess(next_state)
             total_reward += reward
+
+            atari_model.train_neural_network(model, loss, optimizer, x, y, state, action, reward, next_state)
+
             # Render
             if not is_done:
                 env.render()
