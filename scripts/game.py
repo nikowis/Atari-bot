@@ -5,6 +5,7 @@ import atari_model
 import tensorflow as tf
 import random
 import numpy as np
+import time
 
 # Create a breakout environment
 
@@ -34,25 +35,26 @@ def choose_best_action(model, frame):
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-
-    for i in range(1, 6):
+    start_time = time.time()
+    iteration = 0
+    for i in range(1, 100000):
         # Reset it, returns the starting frame
         frames = env.reset()
         # Render
-        env.render()
+        # env.render()
         total_reward = 0
         state, reward, is_done, _ = env.step(env.action_space.sample())
         reward = helpers.transform_reward(reward)
         state = helpers.preprocess(state)
+        state = np.reshape(state, (1, state.shape[0], state.shape[1]))
         total_reward += reward
         next_state = state
-        iteration = 0
+
         while not is_done:
             iteration += 1
             epsilon = helpers.get_epsilon_for_iteration(iteration)
-            epsilon = 0
             state = next_state
-            state = np.reshape(state, (1, state.shape[0], state.shape[1]))
+
             # Choose the action
             if random.random() < epsilon:
                 action = env.action_space.sample()
@@ -64,12 +66,17 @@ with tf.Session() as sess:
 
             reward = helpers.transform_reward(reward)
             next_state = helpers.preprocess(next_state)
+            next_state = np.reshape(next_state, (1, next_state.shape[0], next_state.shape[1]))
             total_reward += reward
+            one_hot_action = np.zeros((1, n_classes))
+            one_hot_action[0, action - 1] = 1
+            atari_model.train_neural_network(sess, model, loss, optimizer, x, y, state, one_hot_action, reward,
+                                             next_state)
 
-            atari_model.train_neural_network(model, loss, optimizer, x, y, state, action, reward, next_state)
+            if iteration % 500 == 0:
+                print(int(time.time() - start_time), 's iteration ', iteration)
 
             # Render
-            if not is_done:
-                env.render()
+            # env.render()
 
         print('Total reward for game ', i, ' was ', int(total_reward))

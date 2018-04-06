@@ -7,6 +7,7 @@ learning_rate = 0.00025
 batch_size = 32
 memory = []
 img_size = 84 * 84
+gamma = 0.99
 
 
 def model(x, n_classes):
@@ -46,14 +47,19 @@ def model(x, n_classes):
     return output
 
 
-def train_neural_network(model, loss, optimizer, x, y, frame, action, reward, next_frame):
+def train_neural_network(sess, model, loss, optimizer, x, y, state, one_hot_action, reward, next_state):
+    next_Q_values = sess.run(model, feed_dict={x: next_state})
 
-    with tf.Session() as sess:
-        sess.run(tf.initialize_all_variables())
+    Q_values = reward + gamma * np.max(next_Q_values, axis=1)
+    _, c = sess.run([optimizer, loss], feed_dict={x: state, y: one_hot_action*Q_values})
 
-        for _ in range(int(mnist.train.num_examples / batch_size)):
-            epoch_x, epoch_y = mnist.train.next_batch(batch_size)
-            _, c = sess.run([optimizer, loss], feed_dict={x: epoch_x, y: epoch_y})
-            epoch_loss += c
-
-        print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
+# def train_neural_network(model, loss, optimizer, x, y, frame, action, reward, next_frame):
+#     with tf.Session() as sess:
+#         sess.run(tf.initialize_all_variables())
+#
+#         for _ in range(int(mnist.train.num_examples / batch_size)):
+#             epoch_x, epoch_y = mnist.train.next_batch(batch_size)
+#             _, c = sess.run([optimizer, loss], feed_dict={x: epoch_x, y: epoch_y})
+#             epoch_loss += c
+#
+#         print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
