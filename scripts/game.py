@@ -28,9 +28,8 @@ optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minim
 render = False
 
 
-def choose_best_action(model, frame):
-    pred = model.predict(frame)
-    return pred
+def choose_best_action(nn_model, frame):
+    return nn_model.predict(frame)
 
 
 def get_start_state(frame):
@@ -39,22 +38,24 @@ def get_start_state(frame):
     :param frame: starting frame
     :return: array of 4 frames
     """
+    processed_frame = helpers.preprocess(frame)
     start_state = np.empty((frames_count, img_size, img_size))
-    for i in range(frames_count):
-        start_state[i] = frame
+    start_state[:] = processed_frame
     return start_state
 
 
-def get_next_state(state, new_frame):
+def get_next_state(stte, new_frame):
     """
     Removes first frame from state, and appends new_frame at the end.
-    :param state: current state
+    :param stte: current state
     :param new_frame: frame to append
     :return: new state
     """
-    state[0:frames_count - 1] = state[1:frames_count]
-    state[frames_count - 1] = new_frame
-    return state
+    new_state = np.empty((frames_count, img_size, img_size))
+    processed_frame = helpers.preprocess(new_frame)
+    new_state[0:frames_count - 1] = stte[1:frames_count]
+    new_state[frames_count - 1] = processed_frame
+    return new_state
 
 
 with tf.Session() as sess:
@@ -64,10 +65,8 @@ with tf.Session() as sess:
     for i in range(1000000):
         total_game_reward = 0
         is_done = False
-        next_frame = env.reset()
-        next_frame = helpers.preprocess(next_frame)
-        next_state = get_start_state(next_frame)
-        next_frame = np.reshape(next_frame, (1, next_frame.shape[0], next_frame.shape[1]))
+        frame = env.reset()
+        next_state = get_start_state(frame)
 
         # Render
         if render:
@@ -76,26 +75,24 @@ with tf.Session() as sess:
         while not is_done:
             iteration += 1
             epsilon = helpers.get_epsilon_for_iteration(iteration)
-            frame = next_frame
-
+            state = next_state
             # Choose the action
             if random.random() < epsilon:
                 action = env.action_space.sample()
             else:
-                action = np.argmax(sess.run(model, feed_dict={x: frame}))
+                action = np.argmax(sess.run(model, feed_dict={x: state}))
 
-            next_frame, reward, is_done, _ = env.step(action)
-
+            frame, reward, is_done, _ = env.step(action)
+            next_state = get_next_state(state, frame)
             reward = helpers.transform_reward(reward)
-            next_frame = helpers.preprocess(next_frame)
-            next_frame = np.reshape(next_frame, (1, next_frame.shape[0], next_frame.shape[1]))
+
             total_game_reward += reward
             one_hot_action = np.zeros((1, n_classes))
             one_hot_action[0, action - 1] = 1
-            atari_model.train_neural_network(sess, model, loss, optimizer, x, y, frame, one_hot_action, reward,
-                                             next_frame)
+            atari_model.train_neural_network(sess, model, loss, optimizer, x, y, state, one_hot_action, reward,
+                                             next_state)
 
-            if iteration % 500 == 0:
+            if iteration % 1000 == 0:
                 print(int(time.time() - start_time), 's iteration ', iteration)
 
             # Render

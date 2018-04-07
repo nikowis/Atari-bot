@@ -12,8 +12,8 @@ gamma = 0.99
 
 def model(x, n_classes):
     weights = {
-        # filtr 8x8, 1 wejsciowy obraz, 32 output
-        'W_conv1': tf.Variable(tf.random_normal([8, 8, 1, 32])),
+        # filtr 8x8, 4 wejsciowe klatki, 32 output
+        'W_conv1': tf.Variable(tf.random_normal([8, 8, 4, 32])),
         'W_conv2': tf.Variable(tf.random_normal([4, 4, 32, 64])),
         'W_conv3': tf.Variable(tf.random_normal([3, 3, 64, 64])),
         'W_fc1': tf.Variable(tf.random_normal([7 * 7 * 64, 512])),
@@ -27,7 +27,7 @@ def model(x, n_classes):
               'b_fc2': tf.Variable(tf.random_normal([512])),
               'out': tf.Variable(tf.random_normal([n_classes]))}
 
-    x = tf.reshape(x, shape=[-1, 84, 84, 1])
+    x = tf.reshape(x, shape=[-1, 84, 84, 4])
 
     conv1 = tf.nn.conv2d(x, weights['W_conv1'], strides=[1, 4, 4, 1], padding='VALID') + biases['b_conv1']
     conv1 = tf.nn.relu(conv1)
