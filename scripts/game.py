@@ -38,17 +38,13 @@ with tf.Session() as sess:
     start_time = time.time()
     iteration = 0
     for i in range(1, 100000):
-        # Reset it, returns the starting frame
-        frames = env.reset()
+        total_game_reward = 0
+        is_done = False
+        next_state = env.reset()
+        next_state = helpers.preprocess(next_state)
+        next_state = np.reshape(next_state, (1, next_state.shape[0], next_state.shape[1]))
         # Render
-        # env.render()
-        total_reward = 0
-        state, reward, is_done, _ = env.step(env.action_space.sample())
-        reward = helpers.transform_reward(reward)
-        state = helpers.preprocess(state)
-        state = np.reshape(state, (1, state.shape[0], state.shape[1]))
-        total_reward += reward
-        next_state = state
+        env.render()
 
         while not is_done:
             iteration += 1
@@ -59,15 +55,14 @@ with tf.Session() as sess:
             if random.random() < epsilon:
                 action = env.action_space.sample()
             else:
-                action = sess.run(model, feed_dict={x: state})
-                action = np.argmax(action)
+                action = np.argmax(sess.run(model, feed_dict={x: state}))
 
             next_state, reward, is_done, _ = env.step(action)
 
             reward = helpers.transform_reward(reward)
             next_state = helpers.preprocess(next_state)
             next_state = np.reshape(next_state, (1, next_state.shape[0], next_state.shape[1]))
-            total_reward += reward
+            total_game_reward += reward
             one_hot_action = np.zeros((1, n_classes))
             one_hot_action[0, action - 1] = 1
             atari_model.train_neural_network(sess, model, loss, optimizer, x, y, state, one_hot_action, reward,
@@ -77,6 +72,6 @@ with tf.Session() as sess:
                 print(int(time.time() - start_time), 's iteration ', iteration)
 
             # Render
-            # env.render()
+            env.render()
 
-        print('Total reward for game ', i, ' was ', int(total_reward))
+        print('Total reward for game ', i, ' was ', int(total_game_reward))
