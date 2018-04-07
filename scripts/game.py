@@ -58,6 +58,11 @@ def get_next_state(stte, new_frame):
     return new_state
 
 
+def save_model(sess):
+    saver = tf.train.Saver()
+    saver.save(sess, './atari_model', global_step=100000)
+
+
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     start_time = time.time()
@@ -94,6 +99,9 @@ with tf.Session() as sess:
 
             if iteration % 1000 == 0:
                 print(int(time.time() - start_time), 's iteration ', iteration)
+
+            if iteration % 100000 == 0:
+                save_model(sess)
 
             # Render
             if render:
