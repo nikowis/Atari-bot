@@ -4,7 +4,7 @@ from skimage.color import rgb2gray
 
 
 def preprocess(img):
-    return resize(rgb2gray(img), (110, 84))[13:110 - 13, :]
+    return resize(rgb2gray(img), (110, 84))[17:110 - 9, :]
 
 
 def transform_reward(reward):
