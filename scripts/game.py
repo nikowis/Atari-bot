@@ -24,8 +24,7 @@ model = atari_model.model(x, n_classes)
 loss = tf.losses.mean_squared_error(labels=y, predictions=model)
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss)
 
-is_done = False
-i = 1
+render = False
 
 
 def choose_best_action(model, frame):
@@ -44,7 +43,8 @@ with tf.Session() as sess:
         next_state = helpers.preprocess(next_state)
         next_state = np.reshape(next_state, (1, next_state.shape[0], next_state.shape[1]))
         # Render
-        env.render()
+        if render:
+            env.render()
 
         while not is_done:
             iteration += 1
@@ -72,6 +72,7 @@ with tf.Session() as sess:
                 print(int(time.time() - start_time), 's iteration ', iteration)
 
             # Render
-            env.render()
+            if render:
+                env.render()
 
         print('Total reward for game ', i, ' was ', int(total_game_reward))
