@@ -45,6 +45,18 @@ def get_start_state(frame):
     return start_state
 
 
+def get_next_state(state, new_frame):
+    """
+    Removes first frame from state, and appends new_frame at the end.
+    :param state: current state
+    :param new_frame: frame to append
+    :return: new state
+    """
+    state[0:frames_count - 1] = state[1:frames_count]
+    state[frames_count - 1] = new_frame
+    return state
+
+
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     start_time = time.time()
