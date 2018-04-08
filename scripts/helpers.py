@@ -3,7 +3,7 @@ from skimage.transform import resize
 
 
 def preprocess(img):
-    return resize(np.mean(img, axis=2).astype(np.uint8), (110, 84))[17:110 - 9, :]
+    return resize(np.mean(img, axis=2).astype(np.uint8), (110, 84), preserve_range=True)[17:110 - 9, :]
 
 
 def transform_reward(reward):

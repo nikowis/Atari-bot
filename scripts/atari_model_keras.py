@@ -3,8 +3,8 @@ import numpy as np
 import helpers
 import random
 
+n_classes = 4
 
-memory = []
 
 def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_terminal):
     """Do one deep Q learning iteration.
@@ -20,7 +20,9 @@ def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_term
 
     """
     # First, predict the Q values of the next states. Note how we are passing ones as the mask.
-    next_Q_values = model.predict([next_states, np.ones(actions.shape)])
+    trans_next_states = np.transpose(next_states, (0,2,3,1))
+    trans_start_states = np.transpose(start_states, (0, 2, 3, 1))
+    next_Q_values = model.predict([trans_next_states, actions])
     # The Q values of the terminal states is 0 by definition, so override them
     next_Q_values[is_terminal] = 0
     # The Q values of each start state is the reward + gamma * the max next state Q value
@@ -28,46 +30,31 @@ def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_term
     # Fit the keras model. Note how we are passing the actions as the mask and multiplying
     # the targets by the actions.
     model.fit(
-        [start_states, actions], actions * Q_values[:, None],
-        nb_epoch=1, batch_size=len(start_states), verbose=0
+        [trans_start_states, actions], actions * Q_values[:, None],
+        epochs=1, batch_size=len(trans_start_states), verbose=0
     )
 
 
 def atari_model(n_actions):
     # We assume a theano backend here, so the "channels" are first.
-    ATARI_SHAPE = (4, 105, 80)
-
+    ATARI_SHAPE = (84, 84, 4)
     # With the functional API we need to define the inputs.
     frames_input = keras.layers.Input(ATARI_SHAPE, name='frames')
-    actions_input = keras.layers.Input((n_actions,), name='mask')
+    actions_input = keras.layers.Input((n_actions, ), name='mask')
 
     # Assuming that the input frames are still encoded from 0 to 255. Transforming to [0, 1].
     normalized = keras.layers.Lambda(lambda x: x / 255.0)(frames_input)
 
-    # "The first hidden layer convolves 16 8×8 filters with stride 4 with the input image and applies a rectifier nonlinearity."
-    conv_1 = keras.layers.convolutional.Convolution2D(
-        16, 8, 8, subsample=(4, 4), activation='relu'
-    )(normalized)
-
-    # "The second hidden layer convolves 32 4×4 filters with stride 2, again followed by a rectifier nonlinearity."
-    conv_2 = keras.layers.convolutional.Convolution2D(
-        32, 4, 4, subsample=(2, 2), activation='relu'
-    )(conv_1)
-
-    # Flattening the second convolutional layer.
-    conv_flattened = keras.layers.core.Flatten()(conv_2)
-    # "The final hidden layer is fully-connected and consists of 256 rectifier units."
-    hidden = keras.layers.Dense(256, activation='relu')(conv_flattened)
-    # "The output layer is a fully-connected linear layer with a single output for each valid action."
+    conv_1 = keras.layers.Conv2D(32, (8, 8), strides=(4, 4), activation="relu")(normalized)
+    conv_2 = keras.layers.Conv2D(64, (4, 4), strides=(2, 2), activation="relu")(conv_1)
+    conv_3 = keras.layers.Conv2D(64, (3, 3), strides=(1, 1), activation="relu")(conv_2)
+    conv_flattened = keras.layers.core.Flatten()(conv_3)
+    hidden = keras.layers.Dense(512, activation='relu')(conv_flattened)
     output = keras.layers.Dense(n_actions)(hidden)
-    # Finally, we multiply the output by the mask!
-    filtered_output = keras.layers.merge([output, actions_input], mode='mul')
-
-    model = keras.models.Model(input=[frames_input, actions_input], output=filtered_output)
-    optimizer = optimizer = keras.optimizers.RMSprop(lr=0.00025, rho=0.95, epsilon=0.01)
-
+    filtered_output = keras.layers.multiply([output, actions_input])
+    model = keras.models.Model(inputs=[frames_input, actions_input], outputs=filtered_output)
+    optimizer = keras.optimizers.RMSprop(lr=0.00025, rho=0.95, epsilon=0.01)
     model.compile(optimizer, loss='mse')
-
     return model
 
 
