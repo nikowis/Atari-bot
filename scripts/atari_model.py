@@ -17,14 +17,12 @@ def model(x, n_classes):
         'W_conv2': tf.Variable(tf.random_normal([4, 4, 32, 64])),
         'W_conv3': tf.Variable(tf.random_normal([3, 3, 64, 64])),
         'W_fc1': tf.Variable(tf.random_normal([7 * 7 * 64, 512])),
-        'W_fc2': tf.Variable(tf.random_normal([512, 512])),
         'out': tf.Variable(tf.random_normal([512, n_classes]))}
 
     biases = {'b_conv1': tf.Variable(tf.random_normal([32])),
               'b_conv2': tf.Variable(tf.random_normal([64])),
               'b_conv3': tf.Variable(tf.random_normal([64])),
               'b_fc1': tf.Variable(tf.random_normal([512])),
-              'b_fc2': tf.Variable(tf.random_normal([512])),
               'out': tf.Variable(tf.random_normal([n_classes]))}
 
     x = tf.reshape(x, shape=[-1, 84, 84, 4])
@@ -41,8 +39,7 @@ def model(x, n_classes):
     fc1 = tf.reshape(conv3, [-1, 7 * 7 * 64])
     fc1 = tf.nn.relu(tf.matmul(fc1, weights['W_fc1']) + biases['b_fc1'])
 
-    fc2 = tf.matmul(fc1, weights['W_fc2']) + biases['b_fc2']
-    output = tf.matmul(fc2, weights['out']) + biases['out']
+    output = tf.matmul(fc1, weights['out']) + biases['out']
 
     return output
 

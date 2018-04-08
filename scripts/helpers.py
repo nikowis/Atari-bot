@@ -11,10 +11,10 @@ def transform_reward(reward):
 
 
 def get_epsilon_for_iteration(iteration):
-    if iteration > 1000000:
+    if iteration > 100000:
         return 0.1
     else:
-        return 1.0 - (0.9 / 1000000) * iteration
+        return 1.0 - (0.9 / 100000) * iteration
 
 
 def normalize(frame):
