@@ -13,7 +13,6 @@ env = gym.make('BreakoutDeterministic-v4')
 
 img_size = 84
 frames_count = 4
-learning_rate = 0.00025
 batch_size = 32
 n_classes = env.action_space.n
 memory = []
@@ -22,8 +21,8 @@ x = tf.placeholder(tf.float32, [None, 84, 84])
 y = tf.placeholder(tf.float32, [None, n_classes])
 
 model = atari_model.model(x, n_classes)
-loss = tf.losses.mean_squared_error(labels=y, predictions=model)
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss)
+loss = atari_model.loss(model, y)
+optimizer = atari_model.optimizer(loss)
 
 render = False
 

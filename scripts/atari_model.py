@@ -48,7 +48,8 @@ def train_neural_network(sess, model, loss, optimizer, x, y, state, one_hot_acti
     next_Q_values = sess.run(model, feed_dict={x: next_state})
 
     Q_values = reward + gamma * np.max(next_Q_values, axis=1)
-    _, c = sess.run([optimizer, loss], feed_dict={x: state, y: one_hot_action*Q_values})
+    _, c = sess.run([optimizer, loss], feed_dict={x: state, y: one_hot_action * Q_values})
+
 
 # def train_neural_network(model, loss, optimizer, x, y, frame, action, reward, next_frame):
 #     with tf.Session() as sess:
@@ -60,3 +61,9 @@ def train_neural_network(sess, model, loss, optimizer, x, y, state, one_hot_acti
 #             epoch_loss += c
 #
 #         print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
+def loss(mdl, y):
+    return tf.losses.mean_squared_error(labels=y, predictions=mdl)
+
+
+def optimizer(lss):
+    return tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(lss)
