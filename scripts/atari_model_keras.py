@@ -22,9 +22,8 @@ def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_term
 
     """
     # First, predict the Q values of the next states. Note how we are passing ones as the mask.
-    trans_next_states = np.transpose(next_states, (0,2,3,1))
-    trans_start_states = np.transpose(start_states, (0, 2, 3, 1))
-    next_Q_values = model.predict([trans_next_states, actions])
+
+    next_Q_values = model.predict([next_states, actions])
     # The Q values of the terminal states is 0 by definition, so override them
     next_Q_values[is_terminal] = 0
     # The Q values of each start state is the reward + gamma * the max next state Q value
@@ -32,8 +31,8 @@ def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_term
     # Fit the keras model. Note how we are passing the actions as the mask and multiplying
     # the targets by the actions.
     model.fit(
-        [trans_start_states, actions], actions * Q_values[:, None],
-        epochs=1, batch_size=len(trans_start_states), verbose=0
+        [start_states, actions], actions * Q_values[:, None],
+        epochs=1, batch_size=len(start_states), verbose=0
     )
 
 

@@ -101,12 +101,12 @@ for i in range(1000000):
         one_hot_action = np.zeros((1, n_classes))
         one_hot_action[0, action - 1] = 1
 
-        memory.append([state, one_hot_action, next_state, reward, is_done])
+        memory.append(
+            [np.transpose(state, [1, 2, 0]), one_hot_action, np.transpose(next_state, [1, 2, 0]), reward, is_done])
 
         if iteration > batch_size:
-            atari_model_keras.fit_batch(model, 0.99, np.expand_dims(state, axis=0), one_hot_action,
-                                        np.expand_dims(reward, axis=0), np.expand_dims(next_state, axis=0),
-                                        np.expand_dims(is_done, axis=0))
+            batch = memory.get_batch(batch_size)
+            atari_model_keras.fit_batch(model, 0.99, batch)
 
         if iteration % 1000 == 0:
             print(int(time.time() - start_time), 's iteration ', iteration)
