@@ -3,6 +3,8 @@ import numpy as np
 import helpers
 import random
 
+
+
 n_classes = 4
 
 
@@ -56,26 +58,3 @@ def atari_model(n_actions):
     optimizer = keras.optimizers.RMSprop(lr=0.00025, rho=0.95, epsilon=0.01)
     model.compile(optimizer, loss='mse')
     return model
-
-
-def choose_best_action(model, state):
-    return 1
-
-
-def q_iteration(env, model, state, iteration):
-    # Choose epsilon based on the iteration
-    epsilon = helpers.get_epsilon_for_iteration(iteration)
-
-    # Choose the action
-    if random.random() < epsilon:
-        action = env.action_space.sample()
-    else:
-        action = choose_best_action(model, state)
-
-    # Play one game iteration (note: according to the next paper, you should actually play 4 times here)
-    new_state, reward, is_done, _ = env.step(action)
-    memory.add(state, action, new_state, reward, is_done)
-
-    # Sample and fit
-    batch = memory.sample_batch(32)
-    atari_model.fit_batch(model, batch)

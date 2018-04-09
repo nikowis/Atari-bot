@@ -1,15 +1,21 @@
 # Import the gym module
-from collections import deque
-
-import gym
-import helpers
-import atari_model_keras
-import tensorflow as tf
+import os
 import random
-import numpy as np
 import time
 
+import gym
+import numpy as np
+import psutil
+import tensorflow as tf
+from tensorflow.python.client import device_lib
+
+import atari_model_keras
+import helpers
+from RingBuffer import RingBuf
+
 # Create a breakout environment
+
+print(device_lib.list_local_devices())
 
 env = gym.make('BreakoutDeterministic-v4')
 
@@ -18,12 +24,15 @@ frames_count = 4
 learning_rate = 0.00025
 batch_size = 32
 n_classes = env.action_space.n
-memory_size = 1000000
-memory = deque()
+memory_size = 10000
+memory = RingBuf(memory_size)
 
 model = atari_model_keras.atari_model(n_classes)
 
 render = False
+
+process = psutil.Process(os.getpid())
+print(process.memory_info())
 
 
 def choose_best_action(nn_model, frame):
@@ -92,8 +101,7 @@ for i in range(1000000):
         one_hot_action = np.zeros((1, n_classes))
         one_hot_action[0, action - 1] = 1
 
-        # if iteration < memory_size:
-        #     memory.append([state, one_hot_action, next_state, reward, is_done])
+        memory.append([state, one_hot_action, next_state, reward, is_done])
 
         if iteration > batch_size:
             atari_model_keras.fit_batch(model, 0.99, np.expand_dims(state, axis=0), one_hot_action,
@@ -102,6 +110,7 @@ for i in range(1000000):
 
         if iteration % 1000 == 0:
             print(int(time.time() - start_time), 's iteration ', iteration)
+            print(process.memory_info())
 
         # Render
         if render:
