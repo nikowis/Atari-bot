@@ -11,7 +11,7 @@ from tensorflow.python.client import device_lib
 
 import atari_model_keras
 import helpers
-from RingBuffer import RingBuf
+from RingBuffer import AtariRingBuf
 
 # Create a breakout environment
 
@@ -25,7 +25,7 @@ learning_rate = 0.00025
 batch_size = 32
 n_classes = env.action_space.n
 memory_size = 10000
-memory = RingBuf(memory_size)
+memory = AtariRingBuf(memory_size)
 
 model = atari_model_keras.atari_model(n_classes)
 
@@ -101,12 +101,12 @@ for i in range(1000000):
         one_hot_action = np.zeros((1, n_classes))
         one_hot_action[0, action - 1] = 1
 
-        memory.append(
-            [np.transpose(state, [1, 2, 0]), one_hot_action, np.transpose(next_state, [1, 2, 0]), reward, is_done])
+        memory.append(np.transpose(state, [1, 2, 0]), one_hot_action, np.transpose(next_state, [1, 2, 0]), reward,
+                      is_done)
 
         if iteration > batch_size:
-            batch = memory.get_batch(batch_size)
-            atari_model_keras.fit_batch(model, 0.99, batch)
+            bstates, bactions, bnext_states, b_rewards, b_terminals = memory.get_batch(batch_size)
+            atari_model_keras.fit_batch(model, 0.99, bstates, bactions, bnext_states, b_rewards, b_terminals)
 
         if iteration % 1000 == 0:
             print(int(time.time() - start_time), 's iteration ', iteration)

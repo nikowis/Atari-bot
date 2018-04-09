@@ -8,7 +8,7 @@ import random
 n_classes = 4
 
 
-def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_terminal):
+def fit_batch(model, gamma, start_states, actions, next_states,rewards, is_terminal):
     """Do one deep Q learning iteration.
 
     Params:
@@ -23,15 +23,15 @@ def fit_batch(model, gamma, start_states, actions, rewards, next_states, is_term
     """
     # First, predict the Q values of the next states. Note how we are passing ones as the mask.
 
-    next_Q_values = model.predict([next_states, actions])
+    next_Q_values = model.predict([next_states, np.ones(actions.shape)])
     # The Q values of the terminal states is 0 by definition, so override them
-    next_Q_values[is_terminal] = 0
+    next_Q_values[np.where(is_terminal)[0]] = 0
     # The Q values of each start state is the reward + gamma * the max next state Q value
-    Q_values = rewards + gamma * np.max(next_Q_values, axis=1)
+    Q_values = rewards + gamma * np.max(next_Q_values, axis=1, keepdims=True)
     # Fit the keras model. Note how we are passing the actions as the mask and multiplying
     # the targets by the actions.
     model.fit(
-        [start_states, actions], actions * Q_values[:, None],
+        [start_states, actions], actions * Q_values,
         epochs=1, batch_size=len(start_states), verbose=0
     )
 
