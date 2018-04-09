@@ -1,6 +1,6 @@
 import numpy as np
 from skimage.transform import resize
-
+import keras
 
 def preprocess(img):
     return resize(np.mean(img, axis=2).astype(np.uint8), (110, 84), preserve_range=True)[17:110 - 9, :]
@@ -19,3 +19,9 @@ def get_epsilon_for_iteration(iteration):
 
 def normalize(frame):
     return frame / 255
+
+
+def copy_model(model):
+    """Returns a copy of a keras model."""
+    model.save('tmp_model')
+    return keras.models.load_model('tmp_model')

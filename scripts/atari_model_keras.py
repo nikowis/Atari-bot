@@ -8,7 +8,7 @@ import random
 n_classes = 4
 
 
-def fit_batch(model, gamma, start_states, actions, next_states,rewards, is_terminal):
+def fit_batch(model,frozen_target_model, gamma, start_states, actions, next_states,rewards, is_terminal):
     """Do one deep Q learning iteration.
 
     Params:
@@ -23,7 +23,7 @@ def fit_batch(model, gamma, start_states, actions, next_states,rewards, is_termi
     """
     # First, predict the Q values of the next states. Note how we are passing ones as the mask.
 
-    next_Q_values = model.predict([next_states, np.ones(actions.shape)])
+    next_Q_values = frozen_target_model.predict([next_states, np.ones(actions.shape)])
     # The Q values of the terminal states is 0 by definition, so override them
     next_Q_values[np.where(is_terminal)[0]] = 0
     # The Q values of each start state is the reward + gamma * the max next state Q value

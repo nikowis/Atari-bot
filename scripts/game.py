@@ -8,7 +8,7 @@ import numpy as np
 import psutil
 import tensorflow as tf
 from tensorflow.python.client import device_lib
-
+import h5py
 import atari_model_keras
 import helpers
 from RingBuffer import AtariRingBuf
@@ -24,10 +24,13 @@ frames_count = 4
 learning_rate = 0.00025
 batch_size = 32
 n_classes = env.action_space.n
-memory_size = 10000
+memory_size = 100000
 memory = AtariRingBuf(memory_size)
+freeze_iterations = 10000
+
 
 model = atari_model_keras.atari_model(n_classes)
+frozen_target_model = helpers.copy_model(model)
 
 render = False
 
@@ -106,11 +109,14 @@ for i in range(1000000):
 
         if iteration > batch_size:
             bstates, bactions, bnext_states, b_rewards, b_terminals = memory.get_batch(batch_size)
-            atari_model_keras.fit_batch(model, 0.99, bstates, bactions, bnext_states, b_rewards, b_terminals)
+            atari_model_keras.fit_batch(model, frozen_target_model, 0.99, bstates, bactions, bnext_states, b_rewards, b_terminals)
 
         if iteration % 1000 == 0:
             print(int(time.time() - start_time), 's iteration ', iteration)
             print(process.memory_info())
+
+        if iteration % freeze_iterations == 0:
+            frozen_target_model = helpers.copy_model(model)
 
         # Render
         if render:
