@@ -1,109 +1,75 @@
 # Import the gym module
-import gym
-import helpers
-import atari_model
-import tensorflow as tf
+import os
 import random
-import numpy as np
 import time
 
-# Create a breakout environment
+import numpy as np
+import psutil
+from tensorflow.python.client import device_lib
+import atari_model
+import helpers
+from env_wrapper import EnvWrapper
+from ring_buf import AtariRingBuf
 
-env = gym.make('BreakoutDeterministic-v4')
+GAMMA = 0.99
+IMG_SIZE = 84
+FRAMES_IN_STATE_COUNT = 4
+BATCH_SIZE = 32
 
-img_size = 84
-frames_count = 4
-batch_size = 32
-n_classes = env.action_space.n
-memory = []
+MEMORY_SIZE = 100000
+FREEZE_ITERATIONS = 10000
+RENDER = False
+print(device_lib.list_local_devices())
 
-x = tf.placeholder(tf.float32, [None, 84, 84])
-y = tf.placeholder(tf.float32, [None, n_classes])
+env = EnvWrapper('BreakoutDeterministic-v4', IMG_SIZE, FRAMES_IN_STATE_COUNT)
 
-model = atari_model.model(x, n_classes)
-loss = atari_model.loss(model, y)
-optimizer = atari_model.optimizer(loss)
+action_count = env.action_count
 
-render = False
+memory = AtariRingBuf(MEMORY_SIZE, action_count)
+model = atari_model.model(action_count, IMG_SIZE, FRAMES_IN_STATE_COUNT)
+frozen_target_model = helpers.copy_model(model)
 
+process = psutil.Process(os.getpid())
+print(process.memory_info())
 
-def choose_best_action(nn_model, frame):
-    return nn_model.predict(frame)
+start_time = time.time()
+iteration = 0
+for i in range(1000000):
+    total_game_reward = 0
+    is_done = False
+    env.reset()
+    mem_counter = 0
 
+    if RENDER:
+        env.render()
 
-def get_start_state(frame):
-    """
-    Creates an array of 4 frames from a single frame.
-    :param frame: starting frame
-    :return: array of 4 frames
-    """
-    processed_frame = helpers.preprocess(frame)
-    start_state = np.empty((frames_count, img_size, img_size))
-    start_state[:] = processed_frame
-    return start_state
+    while not is_done:
+        iteration += 1
 
+        if random.random() < helpers.get_epsilon_for_iteration(iteration):
+            action = env.sample_action()
+        else:
+            action = atari_model.predict(model, env.state, action_count)
 
-def get_next_state(stte, new_frame):
-    """
-    Removes first frame from state, and appends new_frame at the end.
-    :param stte: current state
-    :param new_frame: frame to append
-    :return: new state
-    """
-    new_state = np.empty((frames_count, img_size, img_size))
-    processed_frame = helpers.preprocess(new_frame)
-    new_state[0:frames_count - 1] = stte[1:frames_count]
-    new_state[frames_count - 1] = processed_frame
-    return new_state
+        reward, is_done = env.step(action)
 
+        total_game_reward += reward
 
-def save_model(sess):
-    saver = tf.train.Saver()
-    saver.save(sess, './atari_model', global_step=100000)
+        memory.append(env.prev_state, action, env.state, reward, is_done)
 
+        if iteration > BATCH_SIZE:
+            bstates, bactions, bnext_states, b_rewards, b_terminals = memory.get_batch(BATCH_SIZE)
+            atari_model.fit_batch(model, frozen_target_model, GAMMA, bstates, bactions, bnext_states, b_rewards,
+                                  b_terminals)
 
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    start_time = time.time()
-    iteration = 0
-    for i in range(1000000):
-        total_game_reward = 0
-        is_done = False
-        frame = env.reset()
-        next_state = get_start_state(frame)
+        if iteration % 1000 == 0:
+            print(int(time.time() - start_time), 's iteration ', iteration)
+            print(process.memory_info())
 
-        # Render
-        if render:
+        if iteration % FREEZE_ITERATIONS == 0:
+            frozen_target_model = helpers.copy_model(model)
+
+        if RENDER:
             env.render()
 
-        while not is_done:
-            iteration += 1
-            epsilon = helpers.get_epsilon_for_iteration(iteration)
-            state = next_state
-            # Choose the action
-            if random.random() < epsilon:
-                action = env.action_space.sample()
-            else:
-                action = np.argmax(sess.run(model, feed_dict={x: state}))
-
-            frame, reward, is_done, _ = env.step(action)
-            next_state = get_next_state(state, frame)
-            reward = helpers.transform_reward(reward)
-
-            total_game_reward += reward
-            one_hot_action = np.zeros((1, n_classes))
-            one_hot_action[0, action - 1] = 1
-            atari_model.train_neural_network(sess, model, loss, optimizer, x, y, state, one_hot_action, reward,
-                                             next_state)
-
-            if iteration % 1000 == 0:
-                print(int(time.time() - start_time), 's iteration ', iteration)
-
-            if iteration % 100000 == 0:
-                save_model(sess)
-
-            # Render
-            if render:
-                env.render()
-
-        print('Total reward for game ', i, ' was ', int(total_game_reward))
+    print('Total reward for game ', i, ' was ', int(total_game_reward))
