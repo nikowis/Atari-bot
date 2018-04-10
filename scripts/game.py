@@ -20,6 +20,8 @@ MEMORY_SIZE = 100000
 FREEZE_ITERATIONS = 10000
 REPORT_ITERATIONS = 1000
 SAVE_MODEL_ITERATIONS = 100000
+REPLAY_START_SIZE = 50000
+
 RENDER = False
 print(device_lib.list_local_devices())
 
@@ -57,7 +59,7 @@ for i in range(1000000):
 
         total_game_reward += reward
 
-        if iteration > BATCH_SIZE:
+        if iteration > REPLAY_START_SIZE:
             bstates, bactions, bnext_states, b_rewards, b_terminals = env.get_batch(BATCH_SIZE)
             atari_model.fit_batch(model, frozen_target_model, GAMMA, bstates, bactions, bnext_states, b_rewards,
                                   b_terminals)
