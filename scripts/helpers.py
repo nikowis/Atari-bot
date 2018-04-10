@@ -55,6 +55,5 @@ def get_next_state(stte, new_frame, img_size, frames_count):
     return new_state
 
 
-def save_model(sess):
-    saver = tf.train.Saver()
-    saver.save(sess, './atari_model', global_step=100000)
+def save_model(model, path):
+    model.save(path)

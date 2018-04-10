@@ -111,3 +111,5 @@ venv1/
 docs/*/*.dvi
 docs/*/*.toc
 *.out
+
+scripts/tmp_model
