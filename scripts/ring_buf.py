@@ -7,7 +7,7 @@ action_size = 4
 
 
 class AtariRingBuf:
-    def __init__(self, size):
+    def __init__(self, size, action_count):
         self.states = np.empty((size + 1, img_size, img_size, frames_count), dtype=np.uint8)
         self.actions = np.empty((size + 1, action_size), dtype=np.uint8)
         self.next_states = np.empty((size + 1, img_size, img_size, frames_count), dtype=np.uint8)
@@ -17,14 +17,20 @@ class AtariRingBuf:
         self.size = size
         self.end = 0
         self.total = 0
+        self.n_actions = action_count
 
     def append(self, state, action, next_state, reward, is_terminal):
+        buf_state = np.transpose(state, [1, 2, 0])
+        buf_action = np.zeros((1, self.n_actions))
+        buf_action[0, action - 1] = 1
+        buf_next_state = np.transpose(next_state, [1, 2, 0])
+
         self.total = self.total + 1
         if self.total > self.size:
             self.total = self.size
-        self.states[self.end] = state
-        self.actions[self.end] = action
-        self.next_states[self.end] = next_state
+        self.states[self.end] = buf_state
+        self.actions[self.end] = buf_action
+        self.next_states[self.end] = buf_next_state
         self.rewards[self.end] = reward
         self.terminals[self.end] = is_terminal
 
