@@ -113,3 +113,5 @@ docs/*/*.toc
 *.out
 
 scripts/tmp_model
+
+scripts/model
