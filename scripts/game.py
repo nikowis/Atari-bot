@@ -18,7 +18,7 @@ BATCH_SIZE = 32
 BUCKET_SIZE = 20
 MEMORY_SIZE = 120000
 FREEZE_ITERATIONS = 10000
-REPORT_ITERATIONS = 10000
+REPORT_ITERATIONS = 1000
 SAVE_MODEL_ITERATIONS = 100000
 REPLAY_START_SIZE = 50000
 
@@ -34,7 +34,7 @@ frozen_target_model = helpers.copy_model(model)
 helpers.save_model(frozen_target_model, MODEL_PATH)
 
 process = psutil.Process(os.getpid())
-print(process.memory_info())
+print('RAM :', helpers.convert_size(process.memory_info().rss))
 
 start_time = time.time()
 iteration = 0
@@ -67,7 +67,7 @@ for i in range(1000000):
         if iteration % REPORT_ITERATIONS == 0:
             print(int(time.time() - start_time), 's iteration ', iteration)
             print('Scores :', buckets)
-            print(process.memory_info())
+            print('RAM :', helpers.convert_size(process.memory_info().rss))
             buckets = [0] * BUCKET_SIZE
 
         if iteration % FREEZE_ITERATIONS == 0:
@@ -79,7 +79,7 @@ for i in range(1000000):
         if RENDER:
             env.render()
 
-    print('Total reward for game ', i, ' was ', int(total_game_reward))
+    # print('Total reward for game ', i, ' was ', int(total_game_reward))
 
     if total_game_reward >= BUCKET_SIZE:
         buckets[BUCKET_SIZE - 1] += 1

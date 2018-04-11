@@ -1,7 +1,7 @@
 import numpy as np
 from skimage.transform import resize
 import keras
-import tensorflow as tf
+import math
 
 
 def preprocess(img):
@@ -57,3 +57,12 @@ def get_next_state(stte, new_frame, img_size, frames_count):
 
 def save_model(model, path):
     model.save(path)
+
+def convert_size(size_bytes):
+   if size_bytes == 0:
+       return "0B"
+   size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+   i = int(math.floor(math.log(size_bytes, 1024)))
+   p = math.pow(1024, i)
+   s = round(size_bytes / p, 2)
+   return "%s %s" % (s, size_name[i])
