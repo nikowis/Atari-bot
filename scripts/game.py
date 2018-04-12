@@ -5,6 +5,7 @@ import time
 
 import psutil
 from tensorflow.python.client import device_lib
+
 import atari_model
 import helpers
 from env_wrapper import EnvWrapper
@@ -20,7 +21,7 @@ MEMORY_SIZE = 120000
 FREEZE_ITERATIONS = 10000
 REPORT_ITERATIONS = 1000
 SAVE_MODEL_ITERATIONS = 100000
-REPLAY_START_SIZE = 50000
+REPLAY_START_SIZE = 32
 
 RENDER = False
 print(device_lib.list_local_devices())
@@ -53,7 +54,7 @@ for i in range(1000000):
         if random.random() < helpers.get_epsilon_for_iteration(iteration):
             action = env.sample_action()
         else:
-            action = atari_model.predict(model, env.state, action_count)
+            action = atari_model.predict(model, env.get_state_arr(), action_count)
 
         reward, is_done = env.step(action)
 

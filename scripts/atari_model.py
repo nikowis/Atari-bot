@@ -3,6 +3,7 @@ import numpy as np
 
 LEARNING_RATE = 0.00025
 
+
 def fit_batch(model, frozen_target_model, gamma, start_states, actions, next_states, rewards, is_terminal):
     next_Q_values = frozen_target_model.predict([next_states, np.ones(actions.shape)])
     next_Q_values[np.where(is_terminal)[0]] = 0
