@@ -38,7 +38,10 @@ def get_start_state(frame, frames_count):
     :return: array of frames_count frames
     """
     processed_frame = preprocess(frame)
-    return [processed_frame for _ in range(frames_count)]
+    start_state = [0] * frames_count
+    for i in range(frames_count):
+        start_state[i] = processed_frame
+    return start_state
 
 
 def get_next_state(stte, new_frame, frames_count):

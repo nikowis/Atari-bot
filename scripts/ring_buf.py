@@ -18,7 +18,7 @@ class AtariRingBuf:
 
     def append(self, state, action, next_state, reward, is_terminal):
         buf_action = np.zeros((1, self.action_count))
-        buf_action[0, action - 1] = 1
+        buf_action[0, action] = 1
 
         self.total = self.total + 1
         if self.total > self.size:
