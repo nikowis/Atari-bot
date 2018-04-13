@@ -14,11 +14,11 @@ def transform_reward(reward):
     return np.sign(reward)
 
 
-def get_epsilon_for_iteration(iteration):
-    if iteration > 1000000:
-        return 0.1
+def get_epsilon_for_iteration(iteration, treshold, min=0.1):
+    if iteration > treshold:
+        return min
     else:
-        return 1.0 - (0.9 / 1000000) * iteration
+        return 1.0 - ((1.0 - min) / treshold) * iteration
 
 
 def normalize(frame):
@@ -72,6 +72,10 @@ def convert_size(size_bytes):
     p = math.pow(1024, i)
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
+
+
+def load_model(path):
+    return keras.models.load_model(path)
 
 
 def get_size(obj, seen=None):
