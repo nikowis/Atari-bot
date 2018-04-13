@@ -51,7 +51,7 @@ start_time = time.time()
 iteration = 0
 buckets = [0] * BUCKET_SIZE
 total_rewards = total_games = 0
-for i in range(1000000):
+while True:
     total_game_reward = 0
     is_done = False
     env.reset()
