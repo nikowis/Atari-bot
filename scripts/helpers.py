@@ -7,7 +7,7 @@ import sys
 
 
 def preprocess(img):
-    return resize(np.mean(img, axis=2).astype(np.uint8), (110, 84), preserve_range=True)[17:110 - 9, :]
+    return resize(np.mean(img, axis=2).astype(np.uint8), (110, 84), preserve_range=True)[17:110 - 9, :].astype(np.uint8)
 
 
 def transform_reward(reward):
