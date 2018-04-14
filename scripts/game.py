@@ -23,7 +23,8 @@ MEMORY_SIZE = 1000000
 FREEZE_ITERATIONS = 10000
 REPLAY_START_SIZE = 50000
 LAST_EPSILON_DECREASE_ITERATION = 1000000
-MIN_EPSILON = 0.1
+END_EPSILON = 0.1
+START_EPSILON = 1.0
 
 # -------- REPORT CONSTS --------
 REPORT_ITERATIONS = 10000
@@ -40,6 +41,7 @@ if STARTING_MODEL is None:
     model = atari_model.model(action_count, IMG_SIZE, FRAMES_IN_STATE_COUNT)
 else:
     model = helpers.load_model(STARTING_MODEL)
+    print('Loaded model: ', STARTING_MODEL)
 
 if LEARN:
     frozen_target_model = helpers.copy_model(model)
@@ -62,8 +64,9 @@ while True:
     while not is_done:
         iteration += 1
 
-        if random.random() < helpers.get_epsilon_for_iteration(iteration, LAST_EPSILON_DECREASE_ITERATION,
-                                                               min=MIN_EPSILON):
+        eps = helpers.get_epsilon_for_iteration(iteration, LAST_EPSILON_DECREASE_ITERATION,
+                                                END_EPSILON, START_EPSILON)
+        if random.random() < eps:
             action = env.sample_action()
         else:
             action = atari_model.predict(model, env.get_state_arr(), action_count)

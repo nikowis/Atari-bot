@@ -14,11 +14,11 @@ def transform_reward(reward):
     return np.sign(reward)
 
 
-def get_epsilon_for_iteration(iteration, treshold, min=0.1):
+def get_epsilon_for_iteration(iteration, treshold, min=0.1, max=1.0):
     if iteration > treshold:
         return min
     else:
-        return 1.0 - ((1.0 - min) / treshold) * iteration
+        return max - ((max - min) / treshold) * iteration
 
 
 def normalize(frame):

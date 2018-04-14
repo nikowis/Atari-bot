@@ -28,7 +28,7 @@ class EnvWrapper:
         return self.env.action_space.sample()
 
     def get_state_arr(self):
-        return np.array(self.state)
+        return np.array(self.state) / 255
 
     def step(self, action, kth_frame=4):
         total_reward = 0
@@ -48,5 +48,5 @@ class EnvWrapper:
 
     def get_batch(self, batch_size):
         bstates, bactions, bnext_states, b_rewards, b_terminals = self.buffer.get_batch(batch_size)
-        return np.transpose(np.array(bstates), [0, 2, 3, 1]), bactions, np.transpose(np.array(bnext_states), [0, 2, 3,
+        return np.transpose(np.array(bstates)/255, [0, 2, 3, 1]), bactions, np.transpose(np.array(bnext_states)/255, [0, 2, 3,
                                                                                                               1]), b_rewards, b_terminals

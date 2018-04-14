@@ -17,8 +17,7 @@ def fit_batch(model, frozen_target_model, gamma, start_states, actions, next_sta
 def model(n_actions, img_size, frame_count):
     frames_input = keras.layers.Input((img_size, img_size, frame_count), name='frames')
     actions_input = keras.layers.Input((n_actions,), name='mask')
-    normalized = keras.layers.Lambda(lambda x: x / 255.0)(frames_input)
-    conv_1 = keras.layers.Conv2D(32, (8, 8), strides=(4, 4), activation="relu")(normalized)
+    conv_1 = keras.layers.Conv2D(32, (8, 8), strides=(4, 4), activation="relu")(frames_input)
     conv_2 = keras.layers.Conv2D(64, (4, 4), strides=(2, 2), activation="relu")(conv_1)
     conv_3 = keras.layers.Conv2D(64, (3, 3), strides=(1, 1), activation="relu")(conv_2)
     conv_flattened = keras.layers.core.Flatten()(conv_3)
