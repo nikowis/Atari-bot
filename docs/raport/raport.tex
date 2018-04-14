@@ -59,28 +59,28 @@ bindingoffset=10mm, top=20mm, bottom=20mm}
 
 
 \section{Opis projektu}
-Zadaniem tego projektu jest stworzenie agenta komputerowego grającego w gry z Atari 2600. Agent jest trenowany za pomocą uczenia przez wzmacnianie (reinforcement learning) poprzez samoczynne granie w wybrane gry. Agent miał styczność z wieloma grami z konsoli Atari.
+Zadaniem tego projektu jest stworzenie agenta komputerowego grającego w gry z Atari 2600 \cite{atari}. Agent jest trenowany za pomocą uczenia przez wzmacnianie (reinforcement learning) poprzez samoczynne granie w wybrane gry. Podczas uczenia agent miał styczność z wieloma grami z konsoli Atari takimi jak: Breakout, Pong, Atlantis czy Krull.
 
 \section{Metodyka}
 
-Podczas uczenia agent ma przedstawione jako stan 4 ostatnie klatki z gry. Dzięki temu ma on nie tylko podgląd obecnego ekranu ale również widzi on zmiany w grze. W celu ograniczenia ilości przetwarzanych danych ograniczymy rozmiar klatki do 86x86 pikseli w 256 wymiarowej skali szarości.
+Do uczenia agenta zostało użyte środowisko OpenAI Gym \cite{gym} z rozszerzeniem o symulator gier Atari. Środowisko to udostępnia API do resetowania stanu gry, wyświetlania ekranu emulatora, wykonywania kolejnych akcji w emulatorze, pobierania informacji z emulatora takich jak: zrzut ekranu emulatora, informacja o nagrodzie po wykonaniu akcji, informacja o zakończeniu się rozgrywki. Podczas uczenia agent ma przedstawione jako stan 4 ostatnie klatki z gry, na podstawie których wybiera akcje do wykonania w danym stanie. Dzięki temu ma on nie tylko podgląd obecnego zrzutu ekranu, ale również widzi dynamiczne zmiany zachodzące w grze. Z emulatora pobierane są zrzuty w rozmiarze $210\times160$ pikseli w przestrzeni barw RGB. W celu ograniczenia ilości przetwarzanych danych rozmiar każdej klatki jest skalowany i obcinany do $84\times84$ pikseli, a 3 kanały koloru są rzutowane na jeden kanał w 256 wymiarowej skali szarości.
 \\\
 
 \subsection{Nagrody}
 
-Na poączątku zdefiniujmy pojęcie nagrody w kontekście nauczania ze wzmocnieniem. Agent za każdą akcję dostaję nagrodę, agent dąży do maksymalizacji nagród w trakcie jednej gry. W naszym przypadku nagroda będzie wynosiła 0 lub 1. Końcowy wynik agenta możemy określić jako sumę nagród po wykonaniu n akcji:
+Na poączątku należy zdefiniować pojęcie nagrody w kontekście nauczania ze wzmocnieniem. Agent za każdą akcję dostaję nagrodę i dąży do maksymalizacji nagród w trakcie jednej gry. Aby uniezależnić agenta od konkretnych gier (każda gra ma swoją skalę punktacji), nagroda przedstawiana agentowi za każdy jego ruch wynikiem funkcji $sgn(reward)$. Końcowy wynik agenta możemy określić jako sumę nagród po wykonaniu n akcji:
 
 $$R=r_1 + r_2 + r_3 + \dots + r_n$$
 
-Na tej podstawie jesteśmy w stanie zdefiniować równanie do uzyskania sumę nagród w przyszłości:
+Na tej podstawie jesteśmy w stanie zdefiniować równanie sumy nagród uzyskanych w przyszłości zaczynając od momentu $t$:
 
 $$R_t=r_t + r_{t+1}+ r_{t+2} + \dots + r_n$$
 
-Niestety w naszym środowisku niektóre zachowania gier są losowe przez co musimy zaburzyć tą sumę zmniejszając nagrody odsunięte dalej w przyszłości gdyż są one mniej pewne niż nagroda za kolejny krok agenta. Korzystamy wówczas z równania na sumę nagród z \textit{rabatem}:
+Niestety w środowisku Atari niektóre zachowania gier są losowe przez co należy zaburzyć tą sumę zmniejszając nagrody proporcjonalnie do ich oddalenia w przyszłości, gdyż są one mniej pewne niż nagrody za najbliższe kroki agenta. Wówczas można skorzystać z równania na sumę nagród z \textit{rabatem}:
 
 $$R_t=r_t + \gamma r_{t+1}+  \gamma^2 r_{t+2} + \dots + \gamma^{n-t}r_n$$
 
-W sumie z \textit{rabatem} nagrody są pomniejszane o czynnik $\gamma$ który jest liczbą z przedziału $[0,1]$ gdzie dla $\gamma =0$ strategia jest krótkoterminowa i patrzymy tylko na najbliższą nagrodę, zaś dla $\gamma =1$ zakładamy iż środowisko jest deterministyczne i kolejne akcje zawsze wywołują te same stany.
+W sumie z \textit{rabatem} nagrody są pomniejszane o czynnik $\gamma$ który jest liczbą z przedziału $[0,1]$ gdzie dla $\gamma =0$ strategia jest krótkoterminowa i pod uwagę jest brana tylko najbliższa nagroda, zaś wykorzustując $\gamma =1$ należałoby przyjąć iż środowisko jest deterministyczne i kolejne akcje zawsze wywołują te same stany.
 
 \subsection{Q-learning}
 
@@ -157,6 +157,17 @@ Aby ustabilizować zbieganie się modelu, co 10 000 iteracji będziemy zapisywa�
 \caption{Hyperparameters}
 \label{simple1}
 \end{figure}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{atari}
+  Atari 2600 \url{https://en.wikipedia.org/wiki/Atari_2600}
+
+\bibitem{gym}
+  OpenAI Gym \url{https://gym.openai.com/}
+
+\end{thebibliography}
 
 
 \end{document}
