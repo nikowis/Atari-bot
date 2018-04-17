@@ -28,7 +28,7 @@ START_EPSILON = 1.0
 
 # -------- REPORT CONSTS --------
 REPORT_ITERATIONS = 10000
-SAVE_MODEL_ITERATIONS = 100000
+SAVE_MODEL_ITERATIONS = 50000
 BUCKET_SIZE = 15
 
 print(device_lib.list_local_devices())
@@ -71,7 +71,7 @@ while True:
         else:
             action = atari_model.predict(model, env.get_state_arr(), action_count)
 
-        reward, is_done = env.step(action)
+        reward, is_done = env.step(action, 1)
 
         total_game_reward += reward
 

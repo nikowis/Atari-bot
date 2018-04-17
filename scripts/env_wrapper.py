@@ -30,7 +30,7 @@ class EnvWrapper:
     def get_state_arr(self):
         return np.array(self.state) / 255
 
-    def step(self, action, kth_frame=4):
+    def step(self, action, kth_frame):
         total_reward = 0
         return_frame = None
         return_is_done = None
