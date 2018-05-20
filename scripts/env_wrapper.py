@@ -47,6 +47,6 @@ class EnvWrapper:
         return total_reward, return_is_done
 
     def get_batch(self, batch_size):
-        bstates, bactions, bnext_states, b_rewards, b_terminals = self.buffer.get_batch(batch_size)
+        bstates, bactions, bnext_states, b_rewards, b_terminals = self.buffer.get_batch(batch_size, True)
         return np.transpose(np.array(bstates)/255, [0, 2, 3, 1]), bactions, np.transpose(np.array(bnext_states)/255, [0, 2, 3,
                                                                                                               1]), b_rewards, b_terminals
