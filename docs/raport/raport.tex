@@ -13,7 +13,7 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{float} 
-
+\usepackage{subfigure}
 
 \usepackage{a4wide}
 
@@ -63,8 +63,30 @@ Zadaniem tego projektu jest stworzenie agenta komputerowego grającego w gry z A
 
 \section{Metodyka}
 
-Do uczenia agenta zostało użyte środowisko OpenAI Gym \cite{gym} z rozszerzeniem o symulator gier Atari. Środowisko to udostępnia API do resetowania stanu gry, wyświetlania ekranu emulatora, wykonywania kolejnych akcji w emulatorze, pobierania informacji z emulatora takich jak: zrzut ekranu emulatora, informacja o nagrodzie po wykonaniu akcji, informacja o zakończeniu się rozgrywki. Podczas uczenia agent ma przedstawione jako stan 4 ostatnie klatki z gry, na podstawie których wybiera akcje do wykonania w danym stanie. Dzięki temu ma on nie tylko podgląd obecnego zrzutu ekranu, ale również widzi dynamiczne zmiany zachodzące w grze. Z emulatora pobierane są zrzuty w rozmiarze $210\times160$ pikseli w przestrzeni barw RGB. W celu ograniczenia ilości przetwarzanych danych rozmiar każdej klatki jest skalowany i obcinany do $84\times84$ pikseli, a 3 kanały koloru są rzutowane na jeden kanał w 256 wymiarowej skali szarości.
+Do uczenia agenta zostało użyte środowisko OpenAI Gym \cite{gym} z rozszerzeniem o symulator gier Atari. Środowisko to udostępnia API do wyświetlania ekranu emulatora, wykonywania kolejnych akcji w emulatorze, resetowania stanu gry, pobierania informacji z emulatora takich jak: zrzut ekranu emulatora, informacja o nagrodzie po wykonaniu akcji, informacja o zakończeniu się rozgrywki. Podczas uczenia agent ma przedstawione jako stan 4 ostatnie klatki z gry, na podstawie których wybiera akcje do wykonania w danym stanie. Dzięki temu ma on nie tylko podgląd obecnego zrzutu ekranu, ale również widzi dynamiczne zmiany zachodzące w grze. Z emulatora pobierane są zrzuty w rozmiarze $160\times210$ pikseli w przestrzeni barw RGB. W celu ograniczenia ilości przetwarzanych danych rozmiar każdej klatki jest skalowany i obcinany do $84\times84$ pikseli, a 3 kanały koloru są rzutowane na jeden kanał w 256 wymiarowej skali szarości.
 \\\
+
+\begin{figure}[H]%
+\centering
+\subfigure[Klatka z emulatora]{%
+\label{fig:first}%
+\includegraphics[scale=0.5]{1_raw.jpg}}%
+\qquad
+\subfigure[Klatka w skali szarości]{%
+\label{fig:second}%
+\includegraphics[scale=0.5]{2_gray.jpg}}%
+\qquad
+\subfigure[Klatka przeskalowana]{%
+\label{fig:third}%
+\includegraphics[scale=0.5]{3_resized.jpg}}%
+\qquad
+\subfigure[Klatka obcięta]{%
+\label{fig:fourth}%
+\includegraphics[scale=0.5]{4_cropped.jpg}}%
+\caption{Kolejne kroki przetwarzania obrazu wejściowego}
+\end{figure}
+
+
 
 \subsection{Nagrody}
 
@@ -84,66 +106,92 @@ W sumie z \textit{rabatem} nagrody są pomniejszane o czynnik $\gamma$ który je
 
 \subsection{Q-learning}
 
-Do wyliczania kolejnych ruchów agenta skorzystaliśmy z \textbf{Q-learningu}. Zdefiniujmy funkcję \textit{Q(s,a)} gdzie \textit{s} to stan, zaś \textit{a} to akcja możliwa do wykonania w danym stanie. Funkcja ta reprezentuje możliwie największy wynik pod koniec gry w przypadku podjęcia akcji \textbf{a} w stanie \textbf{s}. Jest ona określona rekurencyjnym równaniem Bellmana:
+Do wyliczania kolejnych ruchów agenta został użyty \textbf{Q-learningu}. Zdefiniujmy funkcję \textit{Q(s,a)} gdzie \textit{s} to stan, zaś \textit{a} to akcja możliwa do wykonania w danym stanie. Funkcja ta reprezentuje możliwie największy wynik pod koniec gry w przypadku podjęcia akcji \textbf{a} w stanie \textbf{s}. Jest ona określona rekurencyjnym równaniem Bellmana:
 
 $$Q(s,a) =  r + \gamma max_{a'}Q(s',a')$$
 
-Gdzie $r$ to nagroda po wykonaniu akcji $a$ w stanie $s$, $\gamma$ to współczynnik rabatu, $s'$ to stan w którym znajdziemy się po wykonaniu akcji $a$, zaś $a'$ to kolejna akcja.
+Gdzie $r$ to nagroda po wykonaniu akcji $a$ w stanie $s$, $\gamma$ to współczynnik rabatu, $s'$ to stan w którym znajdziemy się po wykonaniu akcji $a$, zaś $a'$ to kolejna optymalna akcja.
 
-\subsection{Deep Q Network}
+\subsection{Deep Q-network}
 
-W związku z tym że każda z 4 ostatnich klatek gry ma rozdzielczość $8x\times 84$, a każdy piksel może mieć 256 możliwych wartości w skali szarości wówczas mamy $256^{84\times84\times4}$ stanów gry. Jest to tak ogromna liczba iż nie jesteśmy w stanie stworzyć tablicy zapamiętania funkcji Q.
-Aby skutecznie liczyć wartość funkcji $Q(s,a)$ naszym projekcie skorzystaliśmy z sieci neuronowej do tego zadania. Nasza sieć na wejściu przyjmuje stan gry (4 klatki z gry), a na wyjściu daje nam wartość funkcji Q dla każdej możliwej akcji. W Atari 2600 mamy do wykonania 18 możliwych akcji (chociaż nie wszystkie są używane we wszystkich grach).
-\\\
-
-Dla przejścia $<s, a, r, s'>$ aktualizujemy naszą sieć następującym algorytmem:
+W związku z tym że każda z 4 ostatnich klatek gry ma rozdzielczość $84\times 84$, a każdy piksel może mieć 256 możliwych wartości w skali szarości wówczas mamy $256^{84\times84\times4}$ stanów gry. Jest to tak ogromna liczba, iż nie jesteśmy w stanie stworzyć tablicy do zapamiętania funkcji Q.
+W celu skutecznego wyliczania i aproksymowania wartość funkcji $Q(s,a)$ została użyta sieć neuronowa. Naturalną implementacją takiej sieci byłoby przyjęcie na wejściu stanu gry oraz wybranej akcji, wówczas w odpowiedzi wyliczana by była jakość tej akcji w danym stanie. Optymalniejszym podejściem jest stworzenie sieci, która na wejściu sieć przyjmuje stan gry (4 klatki z gry), a na wyjściu zwraca wartość funkcji Q dla każdej możliwej akcji w danym środowisku. Dzięki takiej architekturze tylko jedno wyliczenie wskazuje optymalną akcję. W przeciwnym wypadku ilość obliczeń jest uzależniona liniowo od ilości akcji. W Atari 2600 mamy 18 możliwych akcji do wykonania (chociaż nie wszystkie są używane we wszystkich grach).
+\\
+Dla każdego przejścia $<s, a, r, s'>$ aktualizujemy naszą sieć następującym algorytmem:
 \begin{enumerate}
-\item Wykonujemy feedforward dla obecnego stanu $s$ aby uzyskać przewidywane Q-wartości dla każdej akcji. Oznaczmy wyliczone w ten sposób wartości $Q'(s,a)$.
-\item Wykonujemy feedforward dla kolejnego stanu $s'$ i wybieramy wartość dla najlepszej akcji $max_{a'}Q(s',a')$.
-\item Wyliczamy poprawną wartość funkcji $Q$ dla akcji $a$ korzystając ze wzoru: $$Q(s, a) = r + \gamma max_{a'}Q(s',a')$$ Dla innych akcji zostawiamy wartość funkcji $Q$ uzyskaną z naszej sieci.
+\item Wykonujemy feedforward dla poprzedniego stanu $s$, aby uzyskać przewidywaną Q-wartości dla akcji $a$. Oznaczmy wyliczoną w ten sposób wartość $Q'(s,a)$.
+\item Wykonujemy feedforward dla obecnego stanu $s'$ i wybieramy wartość dla najlepszej akcji $max_{a'}Q(s',a')$.
+\item Wyliczamy poprawną wartość funkcji $Q$ dla akcji $a$ korzystając ze wzoru: $$Q(s, a) = r + \gamma max_{a'}Q(s',a')$$ Dla pozostałych akcji zostawiamy wartość funkcji $Q$ uzyskaną z naszej sieci.
 \item Liczymy funkcję straty (loss function) wzorem $$L=\frac{1}{2}[Q(s,a)-Q'(s,a)]^2=\frac{1}{2}[r+\gamma max_{a'}Q(s',a')-Q'(s,a)]^2$$ Uwaga: funkcja straty dla akcji innych niż $a$ przez powyższe założenie wynosi 0. 
-\item Aktualizujemy wagi w sieci używając backpropagation
+\item Aktualizujemy wagi w sieci używając wstecznej propagacji (backpropagation)
 \end{enumerate}
+
+\subsection{Dodatkowe założenia i metody}
 
 \subsubsection{Experience replay}
 
-Podczas grania kolejne stany są często bardzo podobne i mało się różnią. Może to powodować iż sieć zbiegnie się rozwiązaniami dla konkretnej części rozgrywki i wpadnie w minimum lokalne. Aby temu zapobiec w trakcie gry wszystkie doświadczenia <s, a, r, s'> zapisujemy w pamięci, do uzyskania miliona przejść.  Przy trenowaniu sieci wraz z naszym obecnym przejściem pobieramy z pamięci losowe próbki które są używane do jej wytrenowania. Sieć optymalizujemy w zbiorach 32 przejść. W ten sposób łamiemy podobieństwo kolejnych stanów, przypominając sieci inne elementy rozgrywki niż ten obecny. 
+Podczas grania kolejne stany są często bardzo podobne i mało się różnią. Powoduje to, iż sieć zbiega się rozwiązaniami dla konkretnej części rozgrywki i wpada w maksimum lokalne (np. dla gry Breakout sieć zaczyna faworyzować ruchy paletką w jednym z dwóch kierunków). Aby temu zapobiec w trakcie gry ostatnie milion doświadczeń w postaci krotek $<s, a, r, s'>$ zapisywanych jest w pamięci. Przy trenowaniu sieci nie jest używane ostatnie doświadczenie, zaś losowa porcja próbek doświadczeń z pamięci. W ten sposób łamane jest podobieństwo kolejnych stanów, przypominając sieci wszelkie pamiętane elementy rozgrywki, nie tylko sekwencyjne.
 
 \subsubsection{Exploration-exploitation dilemma}
 
-Podczas inicjalizacji nasza sieć jest wypełniania losowymi liczbami więc początkowo wybierane akcje również będą losowe. Jest to czysta eksploracja. W przypadku gdy nasza sieć zbiega się do niektórych rozwiązań nasz algorytm nie będzie przeszukiwał nowych ścieżek i zachowań. Aby temu zapobiec skorzystamy z $\varepsilon\ greedy\ exploration$ z prawdopodobieństwem $\varepsilon$ na wykokanie losowej akcji. W oryginalnym projekcie firmy DeepMind wykorzystano zmienne $\varepsilon$ malejące liniowo przez pierwsze milion klatek od 1 do 0.1.
+Podczas inicjalizacji sieć wypełniania jest losowymi liczbami, więc początkowo wybierane akcje również będą losowe. Jest to czysta eksploracja. W przypadku gdy nasza sieć zbiega się do niektórych rozwiązań algorytm zatrzymując się w maksimum lokalnym nie będzie przeszukiwał nowych ścieżek i zachowań zadowalając się uzyskanym wynikiem. Aby temu zapobiec wykorzystana została metoda z $\varepsilon\ greedy\ exploration$ - każdy ruch wybierany jest z prawdopodobieństwem $\varepsilon$ na wykokanie losowej akcji.
+
+\subsubsection{Network freezing}
+
+W związku z tym iż funkcja straty wykorzystuje sieć neuronową dla której jest liczona, co jest pewnego rodzaju rekurencją - do poprawy sieci neuronowej wykorzysujemy wyniki z niej samej. Taka zależność może to powodować wolniejsze zbieganie się wyników do oczekiwanych. Przypomnijmy wzór: 
+
+$$L=\frac{1}{2}[Q(s,a)-Q'(s,a)]^2=\frac{1}{2}[r+\gamma max_{a'}Q(s',a')-Q'(s,a)]^2$$
+
+Aby ustabilizować zbieganie się modelu, co określoną liczbę iteracji zapisywany jest jego stan - jest to tak zwana metoda mrożenia sieci. Za pomocą tej pomocniczej zamrożonej sieci przewidywane są wartości rekurencyjne z funkcji straty. Takie działanie powoduje znaczną poprawę w szybkości uczenia się modelu i jego stabilności.
+
+\subsection{Architektura sieci \cite{deepmind_2}}
+
+Sieć neuronowa wykorzystana w tej pracy jest tradycyjną siecią konwolucyjną z trzema warstwami konwolucyjnymi i jedną warstwą w pełni połączoną. Wejściowy stan postaci $84\times84\times4$ trafia do pierwszej warstwy konwolucyjnej złożonej z 32 filtrów rozmiaru $8\times8$ o kroku (\textit{stride}) 4 na wyjściu przechodząc przez funkcję ReLU. Druga warstwa konwolucyjną składa się z 64 filtrów $4\times4$ o kroku 2, po której wyniki są przepuszczane przez funkcję ReLU. Trzecia warstwa konwolucyjna składa się z 64 filtrów $3\times3$ o kroku 1, po której również jest funkcja ReLU. Ostatnią warstwą ukrytą jest w pełni połączona warstwa z 512 neuronami. Wyjściowa warstwa jest warstwą w pełni połączoną z wyjściem dla każdej możliwej akcji.
+
+W celu normalizacji wyników różniących się w każdej z gier, nagrody zostały zmienione na 1 dla nagród pozytywnych, -1 dla nagród negatywnych, 0 w pozostałych wypadkach.
+
+ Tak jak w oryginalnym projekcie firmy DeepMind wykorzystano zmienną $\varepsilon$ malejącą liniowo przez pierwsze milion klatek od 1 do 0.1.
+ 
+Sieć neuronowa jest trenowana w porcjach 32 doświadczeń pobranych z pamięci zapamiętanych doświadczeń. 
+
+Dodatkowo używana jest pomocnicza (zamrożona) sieć neuronowa, która jest kopią głównej sieci robioną co 10 000 iteracji. 
+
+\begin{figure}[H]
+\centering \includegraphics[scale=0.3]{network.png}
+\caption{Schemat sieci neuronowej \cite{deepmind_2}}
+\label{simple1}
+\end{figure}
+
 
 \subsubsection{Algorytm trenowania}
 
 \begin{lstlisting}
- zainicjalizuj pamiec doswiadczen replay D
- zainicjalizuj siec neuronowa losowymi wagami
- pobierz stan s
- dopoki gra sie nie zakonczyla
-	wybierz akcje a
-		z prawdopodobienstwem $\varepsilon$ wybierz losowa akcje
-		w przeciwnym przypadku wybierz $a = argmax_{a'}Q(s,a')$
-	wykonaj akcje a
-	pobierz nagrode r oraz stan s'
-	zapisz doswiadczenie <s,a,r,s'> w pamieci D
+ initialize replay memory D
+ initialize the neural network with random data
+ get the current state 's'
+ while game not over
+ 	if random > epsilon 
+ 		'a' = random action
+ 	otherwise
+ 		'a' = argmax_{a'}Q(s,a')
+
+	perform action 'a'
+	get reward 'r' and state 's`'
+	store experience <s,a,r,s'> in memory D
 	
-	probkuj losowe przejscie <ss, aa, rr, ss'> z pamieci doswiadczen replay D
-	oblicz dla kazdej miniporcji przejsc
-		jezeli ss' jest stanem koncowym wowczas $tt=rr$
-		w przeciwnym przypadku $tt=rr+\gamma argmax_{aa'}Q(ss', aa')$
-	trenuj siec neuronowa uzywajac funkcji straty $tt-Q(ss,aa))^2$
+	sample 32 random experiences <ss, aa, rr, ss'> from memory D
+	for each experience from the sample batch
+		if ss' is the final state 
+			tt=rr
+		otherwise
+			tt=rr+gamma*argmax_{aa'}Q(ss', aa')
+	
+	optimize the neural network using loss function tt-Q(ss,aa))^2
 	
 	s=s'
-
 \end{lstlisting}
 
-\subsubsection{Unikanie dywergencji}
 
-W związku z tym iż nasz algorytm przewiduje sam siebie rekurencyjnie może to doprowadzać do dywergencji. Przypomnijmy wzór: 
-
-$$Q(s, a) = r + \gamma max_{a'}Q(s',a')$$
-
-Aby ustabilizować zbieganie się modelu, co 10 000 iteracji będziemy zapisywać aktualny stan modelu aby za jego pomocą przewidywać wartości rekurencyjne. Takie działanie powoduje znaczną poprawę w szybkości uczenia się modelu i jego stabilności.
 
 \begin{figure}[H]
 \centering \includegraphics[scale=0.7]{deep_mind_architecture.PNG}
@@ -158,7 +206,6 @@ Aby ustabilizować zbieganie się modelu, co 10 000 iteracji będziemy zapisywa�
 \label{simple1}
 \end{figure}
 
-
 \begin{thebibliography}{9}
 
 \bibitem{atari}
@@ -166,6 +213,18 @@ Aby ustabilizować zbieganie się modelu, co 10 000 iteracji będziemy zapisywa�
 
 \bibitem{gym}
   OpenAI Gym \url{https://gym.openai.com/}
+
+
+\bibitem{deepmind_1}
+  Volodymyr Mnih et al. 
+\textit{Playing Atari with Deep Reinforcement Learning.} Deepmind, 2013
+   \url{https://deepmind.com/research/publications/playing-atari-deep-reinforcement-learning/}
+
+\bibitem{deepmind_2}
+  Volodymyr Mnih et al. 
+\textit{Human-level control through deep reinforcement learning.} Deepmind, 2015
+   \url{https://deepmind.com/research/publications/human-level-control-through-deep-reinforcement-learning/}
+
 
 \end{thebibliography}
 
