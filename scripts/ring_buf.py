@@ -37,7 +37,7 @@ class AtariRingBuf:
         indices = random.sample(range(self.total), batch_size)
         if include_last:
             if self.end not in indices:
-                indices[batch_size-1] = self.end
+                indices[batch_size-1] = (self.end - 1) % self.size
 
         return [self.states[i] for i in indices], self.actions[indices], [self.next_states[i] for i in indices], \
                self.rewards[indices], \
