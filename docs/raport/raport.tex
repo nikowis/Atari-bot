@@ -150,11 +150,86 @@ Sieć neuronowa wykorzystana w tej pracy jest tradycyjną siecią konwolucyjną 
 
 W celu normalizacji wyników różniących się w każdej z gier, nagrody zostały zmienione na 1 dla nagród pozytywnych, -1 dla nagród negatywnych, 0 w pozostałych wypadkach.
 
- Tak jak w oryginalnym projekcie firmy DeepMind wykorzystano zmienną $\varepsilon$ malejącą liniowo przez pierwsze milion klatek od 1 do 0.1.
- 
-Sieć neuronowa jest trenowana w porcjach 32 doświadczeń pobranych z pamięci zapamiętanych doświadczeń. 
+\begin{center}
 
-Dodatkowo używana jest pomocnicza (zamrożona) sieć neuronowa, która jest kopią głównej sieci robioną co 10 000 iteracji. 
+\begin{table}[H]
+  \centering%
+  \caption{Lista komponentów}
+\begin{tabular}{|p{3cm}|p{3cm}|p{10cm}|}
+\hline
+\textbf{Parametr} & \textbf{Wartość} & \textbf{Opis} \\
+\hline
+
+batch size &
+32 & 
+ \\
+\hline
+
+początkowa eksploracja &
+1 &
+Ostateczne $\varepsilon$ w eksploracji $\varepsilon$-greedy \\
+\hline
+
+końcowa eksploracja &
+0.1 &
+Ostateczne $\varepsilon$ w eksploracji $\varepsilon$-greedy \\
+\hline
+
+ostatnia klatka eksploracji &
+1 000 000 &
+Liczba klatek w trakcie których wartość $\varepsilon$ jest zmniejszana liniowo z wartości początkowej do końcowej\\
+\hline
+
+rabat &
+0.99 &
+wartość $\gamma$ rabatu w algotytmie Q-learning\\
+\hline
+
+ilość omijanych klatek &
+4 &
+każda wybrana akcja wykonywana jest na określonej ilości kolejnych klatek w celu uspójnienia ruchów agenta \\
+\hline
+
+wielkość pamięci doświadczeń &
+1 000 000 &
+\\
+\hline
+
+mrożenie sieci &
+10 000 &
+Ilość iteracji po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu  \\
+\hline
+
+mrożenie sieci &
+10 000 &
+Ilość iteracji po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu  \\
+\hline
+
+
+metoda gradientu &
+RMSProp &
+Algorytm wykorzystywany przy aktualizacji sieci neuronowej  \\
+\hline
+
+learning rate &
+0.00025 &
+Współczynnik nauczania stosowany przez metodę gradientu  \\
+\hline
+
+rho &
+0.95 &
+Współczynnik rho stosowany przez metodę gradientu  \\
+\hline
+
+epsilon &
+0.01&
+Współczynnik epsilon stosowany przez metodę gradientu  \\
+\hline
+
+\end{tabular}
+\end{table}
+\end{center}
+
 
 \begin{figure}[H]
 \centering \includegraphics[scale=0.3]{network.png}
@@ -162,6 +237,7 @@ Dodatkowo używana jest pomocnicza (zamrożona) sieć neuronowa, która jest kop
 \label{simple1}
 \end{figure}
 
+\newpage
 
 \subsubsection{Algorytm trenowania}
 
@@ -191,20 +267,7 @@ Dodatkowo używana jest pomocnicza (zamrożona) sieć neuronowa, która jest kop
 	s=s'
 \end{lstlisting}
 
-
-
-\begin{figure}[H]
-\centering \includegraphics[scale=0.7]{deep_mind_architecture.PNG}
-\caption{Sieć neuronowa firmy Deep Mind}
-\label{simple1}
-\end{figure}
-
-
-\begin{figure}[H]
-\centering \includegraphics[scale=0.5]{hyperparameters.PNG}
-\caption{Hyperparameters}
-\label{simple1}
-\end{figure}
+\newpage
 
 \begin{thebibliography}{9}
 
