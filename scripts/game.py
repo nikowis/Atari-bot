@@ -105,5 +105,7 @@ while True:
     total_games += 1
     if total_game_reward >= BUCKET_SIZE:
         buckets[BUCKET_SIZE - 1] += 1
+    elif total_game_reward <= 0:
+        buckets[0] += 1
     else:
         buckets[int(total_game_reward)] += 1
