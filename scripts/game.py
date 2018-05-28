@@ -11,6 +11,7 @@ import helpers
 from env_wrapper import EnvWrapper
 
 # -------- MODEL CONSTS --------
+GAME_ENV_NAME = 'BreakoutDeterministic-v4'
 LEARN = True
 RENDER = False
 SAVE_MODEL_PATH = "./model"
@@ -33,7 +34,7 @@ BUCKET_SIZE = 15
 
 print(device_lib.list_local_devices())
 
-env = EnvWrapper('BreakoutDeterministic-v4', IMG_SIZE, FRAMES_IN_STATE_COUNT, MEMORY_SIZE)
+env = EnvWrapper(GAME_ENV_NAME, IMG_SIZE, FRAMES_IN_STATE_COUNT, MEMORY_SIZE)
 
 action_count = env.action_count
 
@@ -75,7 +76,7 @@ while True:
 
         total_game_reward += reward
 
-        if LEARN and iteration > REPLAY_START_SIZE:
+        if LEARN and iteration > REPLAY_START_SIZE and iteration > BATCH_SIZE:
             bstates, bactions, bnext_states, b_rewards, b_terminals = env.get_batch(BATCH_SIZE)
             atari_model.fit_batch(model, frozen_target_model, GAMMA, bstates, bactions, bnext_states, b_rewards,
                                   b_terminals)
@@ -83,7 +84,8 @@ while True:
         if iteration % REPORT_ITERATIONS == 0:
             print(int(time.time() - start_time), 's iteration ', iteration)
             print('Scores :', buckets)
-            print('Avg score :', total_rewards / total_games)
+            if total_games > 0:
+                print('Avg score :', total_rewards / total_games)
             print('RAM :', helpers.convert_size(process.memory_info().rss))
             buckets = [0] * BUCKET_SIZE
             total_rewards = 0
