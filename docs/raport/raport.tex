@@ -162,12 +162,12 @@ W celu normalizacji wyników różniących się w każdej z gier, nagrody zosta�
 
 batch size &
 32 & 
- \\
+Rozmiar porcji na podstawie której sieć jest ulepszana. \\
 \hline
 
 początkowa eksploracja &
 1 &
-Ostateczne $\varepsilon$ w eksploracji $\varepsilon$-greedy \\
+Początkowe $\varepsilon$ w eksploracji $\varepsilon$-greedy \\
 \hline
 
 końcowa eksploracja &
@@ -182,16 +182,17 @@ Liczba klatek w trakcie których wartość $\varepsilon$ jest zmniejszana liniow
 
 rabat &
 0.99 &
-wartość $\gamma$ rabatu w algotytmie Q-learning\\
+Wartość $\gamma$ rabatu w algotytmie Q-learning\\
 \hline
 
 ilość omijanych klatek &
 4 &
-każda wybrana akcja wykonywana jest na określonej ilości kolejnych klatek w celu uspójnienia ruchów agenta \\
+Każda wybrana akcja wykonywana jest na określonej ilości kolejnych klatek w celu uspójnienia ruchów agenta \\
 \hline
 
-wielkość pamięci doświadczeń &
+rozmiar pamięci doświadczeń &
 1 000 000 &
+Liczba doświadczeń trzymanych w buforze pamięci.
 \\
 \hline
 
@@ -230,14 +231,11 @@ Współczynnik epsilon stosowany przez metodę gradientu  \\
 \end{table}
 \end{center}
 
-
 \begin{figure}[H]
 \centering \includegraphics[scale=0.3]{network.png}
 \caption{Schemat sieci neuronowej \cite{deepmind_2}}
 \label{simple1}
 \end{figure}
-
-\newpage
 
 \subsubsection{Algorytm trenowania}
 
@@ -269,6 +267,25 @@ Współczynnik epsilon stosowany przez metodę gradientu  \\
 
 \newpage
 
+\section{Wyniki}
+Ze względu na ograniczenia czasowe sieć była uczona tylko na jednej grze - Atari Breakout \cite{breakout}. W grze tej dostępne są 4 akcje: bezruch, poruszenie paletką w lewo, poruszenie paletką w prawo oraz rzucenie piłeczki. 
+
+
+\begin{figure}[H]
+\centering \includegraphics[scale=1]{1_raw.jpg}
+\caption{Zrzut ekranu z gry Atari Breakout}
+\label{atari1}
+\end{figure}
+
+Gra polega na takim odbijaniu poruszającej się piłeczki sterowaną paletką, aby zbijać kolorowe klocki umieszczone w rzędach w górnej części ekranu gry (Rysunek \ref{atari1}). 
+
+\subsection{Problemy}
+
+\section{Instrukcja obsługi}
+\subsection{Instalacja paczek}
+\subsection{Parametry}
+\subsection{Instrukcja do Google Colaboratory \cite{colab}}
+
 \begin{thebibliography}{9}
 
 \bibitem{atari}
@@ -277,6 +294,11 @@ Współczynnik epsilon stosowany przez metodę gradientu  \\
 \bibitem{gym}
   OpenAI Gym \url{https://gym.openai.com/}
 
+\bibitem{colab}
+  Google Colaboratory \url{https://colab.research.google.com}
+
+\bibitem{breakout}
+  Atari Breakout \url{https://en.wikipedia.org/wiki/Breakout_(video_game)}
 
 \bibitem{deepmind_1}
   Volodymyr Mnih et al. 
