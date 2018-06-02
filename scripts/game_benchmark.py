@@ -67,7 +67,7 @@ plt.axis([0, STARTING_MODELS[len(STARTING_MODELS) - 1] + 0.05 * STARTING_MODELS[
 plt.show()
 
 if PRINT_LATEX:
-	print('LaTex table rows:')
+    print('LaTex table rows:')
     for i in range(0, len(STARTING_MODELS)):
         print(int(results[i, 0]), ' & ', results[i, 1], '\\\\\n\\hline')
 

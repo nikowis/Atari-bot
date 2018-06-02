@@ -24,13 +24,12 @@ MEMORY_SIZE = 1000000
 FREEZE_ITERATIONS = 10000
 REPLAY_START_SIZE = 50000
 LAST_EPSILON_DECREASE_ITERATION = 1000000
-END_EPSILON = 0.1
 START_EPSILON = 1.0
+END_EPSILON = 0.1
 
 # -------- REPORT CONSTS --------
 REPORT_ITERATIONS = 10000
 SAVE_MODEL_ITERATIONS = 50000
-BUCKET_SIZE = 15
 
 print(device_lib.list_local_devices())
 
@@ -52,7 +51,6 @@ print('RAM :', helpers.convert_size(process.memory_info().rss))
 
 start_time = time.time()
 iteration = 0
-buckets = [0] * BUCKET_SIZE
 total_rewards = total_games = 0
 while True:
     total_game_reward = 0
@@ -83,11 +81,9 @@ while True:
 
         if iteration % REPORT_ITERATIONS == 0:
             print(int(time.time() - start_time), 's iteration ', iteration)
-            print('Scores :', buckets)
             if total_games > 0:
                 print('Avg score :', total_rewards / total_games)
             print('RAM :', helpers.convert_size(process.memory_info().rss))
-            buckets = [0] * BUCKET_SIZE
             total_rewards = 0
             total_games = 0
 
@@ -103,9 +99,3 @@ while True:
     # print('Total reward for game ', i, ' was ', int(total_game_reward))
     total_rewards += total_game_reward
     total_games += 1
-    if total_game_reward >= BUCKET_SIZE:
-        buckets[BUCKET_SIZE - 1] += 1
-    elif total_game_reward <= 0:
-        buckets[0] += 1
-    else:
-        buckets[int(total_game_reward)] += 1
