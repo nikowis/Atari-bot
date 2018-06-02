@@ -300,11 +300,28 @@ Ze względu na taką charakterystykę środowiska obliczeniowego, uczenie sieci 
 \section{Wyniki}
 Ze względu na ograniczenia czasowe, sieć była uczona tylko na jednej grze - Atari Breakout \cite{breakout}. W grze tej dostępne są 4 akcje: bezruch, poruszenie paletką w lewo, poruszenie paletką w prawo oraz rzucenie piłeczki.
 
-\begin{figure}[H]
-\centering \includegraphics[scale=1]{1_raw.jpg}
-\caption{Zrzut ekranu z gry Atari Breakout}
+
+
+
+\begin{figure}[H]%
+\centering
+\subfigure{%
+\label{atari:first}%
+\includegraphics[scale=0.85]{1_raw.jpg}}%
+\qquad
+\subfigure{%
+\label{atari:second}%
+\includegraphics[scale=0.85]{during_game.png}}%
+\qquad
+\subfigure{%
+\label{atari:third}%
+\includegraphics[scale=0.85]{during_game2.png}}%
+
+\caption{Klatki z gry Atari Breakout granej przez model uczony przez 8 milionów iteracji}
 \label{atari1}
 \end{figure}
+
+
 
 Gra polega na takim odbijaniu poruszającej się piłeczki sterowaną paletką, aby zbijać kolorowe klocki umieszczone w rzędach w górnej części ekranu gry (Rysunek \ref{atari1}).
 \\
