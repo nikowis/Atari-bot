@@ -13,14 +13,14 @@ EPSILON = 0.05
 GAME_ENV_NAME = 'BreakoutDeterministic-v4'
 RENDER = False
 PRINT_LATEX = True
-MODEL_PATH_PREFIX = './models/'
+MODEL_PATH_PREFIX = './drive/app/models/'
 # list of models with iteration count as file names
-STARTING_MODELS = [0, 200, 400, 600, 800, 1000, 1200, 1400, 1550, 1800, 2000, 2200,
+STARTING_MODELS = [0, 200, 600, 800, 1000, 1200, 1400, 1550, 1800, 2000, 2200,
                    2400, 2500, 2700, 3000, 3200, 3500, 3800, 4150, 4400, 4600, 4800,
-                   5000, 5250, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 7000,
+                   5000, 5250, 5400, 5600, 5800, 6000, 6200, 6400, 6800, 7000,
                    7200, 7400, 7600, 7750, 8000]
 
-GAMES_PER_MODEL = 10
+GAMES_PER_MODEL = 5
 
 env = EnvWrapper(GAME_ENV_NAME, IMG_SIZE, FRAMES_IN_STATE_COUNT, 1)
 action_count = env.action_count

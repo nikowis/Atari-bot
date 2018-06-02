@@ -14,7 +14,7 @@ from env_wrapper import EnvWrapper
 GAME_ENV_NAME = 'BreakoutDeterministic-v4'
 LEARN = True
 RENDER = False
-SAVE_MODEL_PATH = "./model"
+SAVE_MODEL_PATH = "./drive/app/model"
 STARTING_MODEL = None
 GAMMA = 0.99
 IMG_SIZE = 84
