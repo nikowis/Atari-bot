@@ -57,6 +57,9 @@ bindingoffset=10mm, top=20mm, bottom=20mm}
 \begin{document}
 \maketitle
 
+\tableofcontents
+
+\newpage
 
 \section{Opis projektu}
 Zadaniem tego projektu jest stworzenie agenta komputerowego grającego w gry z Atari 2600 \cite{atari}. Agent jest trenowany za pomocą uczenia przez wzmacnianie (reinforcement learning) poprzez samoczynne granie w wybrane gry. Podczas uczenia agent miał styczność z wieloma grami z konsoli Atari takimi jak: Breakout, Pong, Atlantis czy Krull.
@@ -149,7 +152,7 @@ $$L=\frac{1}{2}[Q(s,a)-Q'(s,a)]^2=\frac{1}{2}[r+\gamma max_{a'}Q(s',a')-Q'(s,a)]
 
 Aby ustabilizować zbieganie się modelu, co określoną liczbę iteracji zapisywany jest jego stan - jest to tak zwana metoda mrożenia sieci. Za pomocą tej pomocniczej zamrożonej sieci przewidywane są wartości rekurencyjne z funkcji straty. Takie działanie powoduje znaczną poprawę w szybkości uczenia się modelu i jego stabilności.
 
-\subsection{Architektura sieci \cite{deepmind_2}}
+\section{Architektura sieci \cite{deepmind_2}}
 
 Sieć neuronowa wykorzystana w tej pracy jest tradycyjną siecią konwolucyjną z trzema warstwami konwolucyjnymi i jedną warstwą w pełni połączoną. Wejściowy stan postaci $84\times84\times4$ trafia do pierwszej warstwy konwolucyjnej złożonej z 32 filtrów rozmiaru $8\times8$ o kroku (\textit{stride}) 4 na wyjściu przechodząc przez funkcję ReLU. Druga warstwa konwolucyjną składa się z 64 filtrów $4\times4$ o kroku 2, po której wyniki są przepuszczane przez funkcję ReLU. Trzecia warstwa konwolucyjna składa się z 64 filtrów $3\times3$ o kroku 1, po której również jest funkcja ReLU. Ostatnią warstwą ukrytą jest w pełni połączona warstwa z 512 neuronami. Wyjściowa warstwa jest warstwą w pełni połączoną z wyjściem dla każdej możliwej akcji.
 
@@ -159,7 +162,7 @@ W celu normalizacji wyników różniących się w każdej z gier, nagrody zosta�
 
 \begin{table}[H]
   \centering%
-  \caption{Lista komponentów}
+  \caption{Lista parametrów}
 \begin{tabular}{|p{3cm}|p{3cm}|p{10cm}|}
 \hline
 \textbf{Parametr} & \textbf{Wartość} & \textbf{Opis} \\
@@ -190,9 +193,9 @@ rabat &
 Wartość $\gamma$ rabatu w algotytmie Q-learning\\
 \hline
 
-ilość omijanych klatek &
+liczba omijanych klatek &
 4 &
-Każda wybrana akcja wykonywana jest na określonej ilości kolejnych klatek w celu uspójnienia ruchów agenta \\
+Każda wybrana akcja wykonywana jest na określonej liczbie kolejnych klatek w celu uspójnienia ruchów agenta \\
 \hline
 
 rozmiar pamięci doświadczeń &
@@ -203,12 +206,12 @@ Liczba doświadczeń trzymanych w buforze pamięci.
 
 mrożenie sieci &
 10 000 &
-Ilość iteracji po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu  \\
+Liczba iteracji po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu  \\
 \hline
 
 mrożenie sieci &
 10 000 &
-Ilość iteracji po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu  \\
+Liczba iteracji po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu  \\
 \hline
 
 
@@ -242,7 +245,7 @@ Współczynnik epsilon stosowany przez metodę gradientu  \\
 \label{simple1}
 \end{figure}
 
-\subsubsection{Algorytm trenowania}
+\subsection{Algorytm trenowania}
 
 \begin{lstlisting}
  initialize replay memory D
@@ -272,31 +275,30 @@ Współczynnik epsilon stosowany przez metodę gradientu  \\
 
 \newpage
 
-\subsection{Wyzwania}
-\subsubsection{Pamięć doświadczeń}
+\section{Wyzwania}
+\subsection{Pamięć doświadczeń}
 Podczas nauki z pamięci doświadczeń pobierana jest porcja losowych doświadczeń. Każde dośwoadczenie złożone ze stanu gry, akcji, nagrody oraz następnego stanu. Każdy stan gry składa sięz 4 klatek gry w skali szarości, rozmiaru $84\times84$ pikseli. Podczas implementacji pamięci doświadczeń należy mieć na uwadze, że pamiętanych ma być n ostatnich doświadczeń. Do takiego celu warto użyć $ring buffer$. Cała pamięć doświadczeń jest zapamiętywana w pamięci RAM co w połączeniu jej dużym rozmiarem (1 000 000) powoduje konieczność optymalizacji. Ze względu na mały rozmiar nagrody oraz akcji pamiętanych w każdym z doświadczeń ich wpływ na rozmiar całej pamięci jest pomijalny.
 
 Największym narzutem w pamięci doświadczeń są zrzuty ekranu z gry. W każdym stanie są aż 4 takie zrzuty. Należy pamiętać iż do zapamiętanie każdego z pikseli wystarczy użycie 8 bitowej komórki pamięci, która daje możliwość zapisu 255 wartości. Implementując program w Pythonie z użyciem biblioteki NumPy można skorzystać z typu $uint8$. Ten sam typ warto wykorzystać do zapamiętania nagrody oraz akcji każdego doświadczenia. Wykonanie takich kroków nie daje jeszcze satysfakcjonujących wyników ponieważ pamięć z milionem doświadczeń w takiej konfiguracji przekracza 110GB zajętej pamięci.
 \\\
 
- \textbf{Uwaga} domyślnym typem w tablicy NumPy jest 64 bitowy $float64$ przez co bez rzutowania explicité otrzymuje się 8 razy większą pamięć doświadczeń niż optymalnie. 
+ \textbf{Uwaga:} domyślnym typem w tablicy NumPy jest 64 bitowy $float64$ przez co bez rzutowania explicité otrzymuje się 8 razy większą pamięć doświadczeń niż optymalnie. 
 \\\
 
 Do wykonania kolejnych optymalizacji należy przyjrzeć się dokładniej stanom gry. Stan gry składa się z 4 kolejnych klatek gry $s=\{A, B, C, D\}$, następujący po nim stan s’ zawiera jeden nowy zrzut ekranu $s’=\{B, C, D, E\}$. Widać więc że do zapamiętania każdego stanu (poza pierwszym)  potrzeba odłożyć w pamięci tylko jeden nowy zrzut ekranu, dla reszty korzystając z referencji do pamięci już zaalokowanej. Dzięki temu iż nowy stan z doświadczenia $i$ jest starym stanem z doświadczenia $i+1$, zapamiętanie nowego doświadczenia wymaga zaalokowania pamięci na tylko jeden zrzut ekranu. Wówczas jedno doświadczenie to koszt pamięciowy jednego zrzutu ekranu $84\times84$ zamiast ośmiu obiektów tego typu. Dzięki temu uzyskać można 8-krotną optymalizację, a całość w połączeniu z poprzednimi poprawkami pozwala na zmieszczenie się wszystkich doświadczeń w około 10GB pamięci RAM.
 
-\subsubsection{Moc obliczeniowa}
-Dużym wyzwaniem dla realizacji tego projektu jest moc obliczeniowa. Do wytrenowania tak rozległej sieci na każdą z wybranych gier zespół Deepmind \cite{deepmind_2} poświęcał 50 milionów iteracji nauki, co sami wycenili na 38 dni nieprzerwanej gry agenta. Z tego względu eksperyment ten jest nie do powtórzenia w domowych warunkach bez stacji roboczej ze specjalistyczną kartą graficzną i pamięcią RAM o rozmiarze co najmniej 16GB. Warto zaznaczyć że ze względu na specyficzne biblioteki \cite{gym} środowisko działa poprawnie tylko na systemach z rodziny GNU/Linux np. Ubuntu \cite{ubuntu}.  Alternatywą do nauczania agenta na domowych komputerach są ogólnodostępne chmury obliczeniowe. Istnieje kilka darmowych rozwiązań tego typu z ograniczoną ilością mocy obliczeniowej. Ze względu na duży narzut pamięci (10GB) jedyną pasującą spośród dostępnych opcji okazało się środowisko Google Colaboratory \cite{colab}. 
+\subsection{Moc obliczeniowa}
+Dużym wyzwaniem dla realizacji tego projektu jest moc obliczeniowa. Do wytrenowania tak rozległej sieci na każdą z wybranych gier zespół Deepmind \cite{deepmind_2} poświęcał 50 milionów iteracji nauki, co sami wycenili na 38 dni nieprzerwanej gry agenta. Z tego względu eksperyment ten jest nie do powtórzenia w domowych warunkach bez stacji roboczej ze specjalistyczną kartą graficzną i pamięcią RAM o rozmiarze co najmniej 16GB. Warto zaznaczyć że ze względu na specyficzne biblioteki \cite{gym} środowisko działa poprawnie tylko na systemach z rodziny GNU~/~Linux np. Ubuntu \cite{ubuntu}.  Alternatywą do nauczania agenta na domowych komputerach są ogólnodostępne chmury obliczeniowe. Istnieje kilka darmowych rozwiązań tego typu z ograniczoną ilością mocy obliczeniowej. Ze względu na duży narzut pamięci (10GB) jedyną pasującą spośród dostępnych opcji okazało się środowisko Google Colaboratory \cite{colab}. 
 \\\
 
-Środowisko to udostępnia moc obliczeniową karty graficznej NVIDIA Tesla K20 z dostępną pamięcią około 11GB. Program uruchomiony w tym środowisku wykonuje 50 000 iteracji nauki w około 40 minut czyli milion iteracji nauki w około 13 godzin. Całość treningu dla jednej gry trwałaby ponad 27 dni. Niestety ze względu na to iż jest to rozwiązanie darmowe, ma ono swoje ograniczenia. Środowisko uruchamiane jest w przeglądarce internetowej z pomocą specjalnych skryptów o rozszerzeniu \textit{ipynb} (skrypty Jupyter notebook \cite{jupiter}). Aby uruchomić skrypt otwieramy plik w przeglądarce z poziomu Google Drive \cite{drive} pozostawiając otwarte okno przeglądarki na cały czas pracy skryptu. Wykonujący się proces programu może w dowolnym momencie zostać zabity. Jest to zależne od ilości innych użytkowników współdzielących zasoby tego środowiska. Ograniczony jest również maksymalny czas obliczeń, po którym maszyna wirtualna do której jest się podłączony zostaje wyłączona. W praktyce można zauważyć że jest to około 15 godzin. 
+Środowisko to udostępnia moc obliczeniową karty graficznej NVIDIA Tesla K20 z dostępną pamięcią około 11GB. Program uruchomiony w tym środowisku wykonuje 50 000 iteracji nauki w około 40 minut czyli milion iteracji nauki w około 13 godzin. Całość treningu dla jednej gry trwałaby ponad 27 dni. Niestety ze względu na to iż jest to rozwiązanie darmowe, ma ono swoje ograniczenia. Środowisko uruchamiane jest w przeglądarce internetowej z pomocą specjalnych skryptów o rozszerzeniu \textit{ipynb} (skrypty Jupyter notebook \cite{jupiter}). Aby uruchomić skrypt otwieramy plik w przeglądarce z poziomu Google Drive \cite{drive} pozostawiając otwarte okno przeglądarki na cały czas pracy skryptu. Wykonujący się proces programu może w dowolnym momencie zostać zabity. Jest to zależne od liczby innych użytkowników współdzielących zasoby tego środowiska. Ograniczony jest również maksymalny czas obliczeń, po którym maszyna wirtualna do której jest się podłączony zostaje wyłączona. W praktyce można zauważyć że jest to około 15 godzin. 
 \\\
 
-Ze względu na taką charakterystykę środowiska obliczeniowego, uczenie sieci w jednej ciągłej sesji okazało się niemożliwe. Aby temu zaradzić skrypy uczący co określoną ilość iteracji zapisuje kopię modelu sieci do pliku. Dzięki temu po przerwanych obliczeniach można je wznowić od wyznaczonego momentu. Niestety podczas wznawiania obliczeń z zapisanego modelu tracona jest cała pamięć doświadczeń, która była zapisana w pamięci RAM. Może to mieć decydujący wpływ na szybkość i jakość nauczania agenta.
+Ze względu na taką charakterystykę środowiska obliczeniowego, uczenie sieci w jednej ciągłej sesji okazało się niemożliwe. Aby temu zaradzić skrypy uczący co określoną liczbę iteracji zapisuje kopię modelu sieci do pliku. Dzięki temu po przerwanych obliczeniach można je wznowić od wyznaczonego momentu. Niestety podczas wznawiania obliczeń z zapisanego modelu tracona jest cała pamięć doświadczeń, która była zapisana w pamięci RAM. Może to mieć decydujący wpływ na szybkość i jakość nauczania agenta.
 
 
 \section{Wyniki}
 Ze względu na ograniczenia czasowe sieć była uczona tylko na jednej grze - Atari Breakout \cite{breakout}. W grze tej dostępne są 4 akcje: bezruch, poruszenie paletką w lewo, poruszenie paletką w prawo oraz rzucenie piłeczki.
-
 
 \begin{figure}[H]
 \centering \includegraphics[scale=1]{1_raw.jpg}
@@ -305,10 +307,104 @@ Ze względu na ograniczenia czasowe sieć była uczona tylko na jednej grze - At
 \end{figure}
 
 Gra polega na takim odbijaniu poruszającej się piłeczki sterowaną paletką, aby zbijać kolorowe klocki umieszczone w rzędach w górnej części ekranu gry (Rysunek \ref{atari1}).
+\\
+W celu oceny szybkości i jakości nauki zostały przeprowadzone testy dla zapisanych w różnych etapach uczenia modeli. Każdy model gra określoną liczbę gier używając $\epsilon=0.05$. Wynikiem modelu jest uśredniony znormalizowany wynik z każdej z gier. 
 
-W celu oceny szybkości i jakości nauki zostały przeprowadzone testy dla zapisanych w różnych etapach uczenia modeli. Każdy model gra określoną liczbę gier używając $\epsilon=0.05$. Wynikiem modelu jest uśredniony znormalizowany wynik z każdej z gier. Jak widać na Rysunku \ref{} dla modelu grającego losowo wynik jest niezerowy co jest istotnym faktem do zanotowania. Początkowo grający agent nie polepszał znacząco swoich wyników. Widoczne jest również znaczne spowolnienie nauczania od momentu xxx iteracji. Jest to niepożądane i niespodziewane zachowanie - rozważania w rozdziale Problemy.
+\begin{center}
+\begin{table}[H]
+  \centering%
+  \caption{Średnie wyniki zapisanych modeli w różnych etapach uczenia}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Liczba iteracji (tysiące)} & \textbf{Średni znormalizowany wynik}\\
+\hline
+0.0  &  4.95 \\
+\hline
+200  &  4.5 \\
+\hline
+600  &  5.0 \\
+\hline
+800  &  3.1 \\
+\hline
+1000  &  2.9 \\
+\hline
+1200  &  7.8 \\
+\hline
+1400  &  8.5 \\
+\hline
+1550  &  8.45 \\
+\hline
+1800  &  11.85 \\
+\hline
+2000  &  11.1 \\
+\hline
+2200  &  11.9 \\
+\hline
+2400  &  14.45 \\
+\hline
+2500  &  15.55 \\
+\hline
+2700  &  17.9 \\
+\hline
+3000  &  20.6 \\
+\hline
+3200  &  21.6 \\
+\hline
+3500  &  23.65 \\
+\hline
+3800  &  30.7 \\
+\hline
+4150  &  31.55 \\
+\hline
+4400  &  27.05 \\
+\hline
+4600  &  34.35 \\
+\hline
+4800  &  32.65 \\
+\hline
+5000  &  38.5 \\
+\hline
+5250  &  38.4 \\
+\hline
+5400  &  31.05 \\
+\hline
+5600  &  36.65 \\
+\hline
+5800  &  39.8 \\
+\hline
+6000  &  38.85 \\
+\hline
+6200  &  40.25 \\
+\hline
+6400  &  40.05 \\
+\hline
+6800  &  40.35 \\
+\hline
+7000  &  36.85 \\
+\hline
+7200  &  37.7 \\
+\hline
+7400  &  38.85 \\
+\hline
+7600  &  37.35 \\
+\hline
+7750  &  36.95 \\
+\hline
+8000  &  40.3 \\
+\hline
+\end{tabular}
+\end{table}
+\end{center}
 
-\section{Implementacja}
+\begin{figure}[H]
+\centering \includegraphics[scale=0.7]{20games.png}
+\caption{Uśredniony znormalizowany wynik z 20 gier Breakout w stosunku do liczby iteracji nauki (w tysiącach)}
+\label{results}
+\end{figure}
+
+
+ Jak widać na Rysunku \ref{results} dla modelu grającego losowo wynik jest niezerowy co jest istotnym faktem do zanotowania. Na początku nauczania grający agent nie polepszał znacząco swoich wyników, a jego wynik nie różnił się od agenta grającego losowo. Skok średniej liczby punktów widoczny jest dopiero po ponad milionie iteracji nauki (około 13 godzin). Przez kolejne 3 miliony cykli agent uczył się z mniej więcej stałym tempem. Po tym czasie widoczne są już załamania i częściowe, chwilowe regresje w nauce. Po 5 milionach iteracji widoczne jest również znaczne spowolnienie nauczania i ustabilizowanie się wyniku. Jest to niepożądane i niespodziewane zachowanie, które może być spowodowane przerywanymi sesjami nauki z resetowanym stanem pamięci doświadczeń.
+
 \section{Instrukcja obsługi}
 \subsection{Instalacja paczek}
 \subsection{Parametry}
