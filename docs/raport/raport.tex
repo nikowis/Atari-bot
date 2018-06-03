@@ -62,11 +62,11 @@ bindingoffset=10mm, top=20mm, bottom=20mm}
 \newpage
 
 \section{Opis projektu}
-Zadaniem tego projektu jest stworzenie agenta komputerowego, grającego w gry z Atari 2600 \cite{atari}. Agent trenowany jest za pomocą uczenia przez wzmacnianie (reinforcement learning), poprzez samoczynne granie w wybrane gry. Podczas uczenia agent miał styczność z wieloma grami z konsoli Atari, takimi jak: Breakout, Pong, Atlantis czy Krull.
+Zadaniem tego projektu jest stworzenie agenta komputerowego, grającego w gry z Atari 2600 \cite{atari}. Agent trenowany jest za pomocą uczenia przez wzmacnianie (reinforcement learning), poprzez samoczynne granie w wybrane gry. Agent, ze względu na długi czas trenowania, miał styczność tylko z jedną grą: Breakout. Ten sam model sieci powinien z powodzeniem posłużyć do nauki i gry w inne tytuły z konsoli Atari, bez potrzeby zmiany któregokolwiek z parametrów.
 
 \section{Metodyka}
 
-Do implementacji tego projektu użyty został język \textit{Python 3.6} w połączeniu z frameworkiem \textit{Keras} \cite{keras}, który wykorzystuje do obliczeń framework \textit{tensorflow} \cite{tensorflow}. \\
+Do implementacji tego projektu użyty został język \textit{Python 3.6} w połączeniu z frameworkiem \textit{Keras} \cite{keras}, który wykorzystuje do obliczeń bibliotekę \textit{tensorflow} \cite{tensorflow}. \\
 Do uczenia agenta użyte zostało środowisko OpenAI Gym \cite{gym} z rozszerzeniem o symulator gier Atari. Środowisko to udostępnia API do wyświetlania ekranu emulatora, wykonywania kolejnych akcji w emulatorze, resetowania stanu gry, pobierania informacji z emulatora, takich jak: zrzut ekranu emulatora, informacja o nagrodzie po wykonaniu akcji, informacja o zakończeniu się rozgrywki. Podczas uczenia agent ma przedstawione jako stan 4 ostatnie klatki z gry, na podstawie których wybiera akcje do wykonania w danym stanie. Dzięki temu ma on nie tylko podgląd obecnego zrzutu ekranu, ale również widzi dynamiczne zmiany zachodzące w grze. Z emulatora pobierane są zrzuty w rozmiarze $160\times210$ pikseli w przestrzeni barw RGB. W celu ograniczenia ilości przetwarzanych danych rozmiar każdej klatki jest skalowany i obcinany do $84\times84$ pikseli, a 3 kanały koloru są rzutowane na jeden kanał w 256 wymiarowej skali szarości.
 \\\
 
@@ -109,7 +109,7 @@ W sumie z \textit{rabatem} nagrody są pomniejszane o czynnik $\gamma$, który j
 
 \subsection{Q-learning}
 
-Do wyliczania kolejnych ruchów agenta użyty został \textbf{Q-learningu}. Zdefiniujmy więc funkcję \textit{Q(s,a)}, gdzie \textit{s} to stan, zaś \textit{a} to akcja możliwa do wykonania w danym stanie. Funkcja ta reprezentuje możliwie największy wynik pod koniec gry, w przypadku podjęcia akcji \textbf{a} w stanie \textbf{s}. Określona jest ona rekurencyjnym równaniem Bellmana:
+Do wyliczania kolejnych ruchów agenta użyty został \textbf{Q-learning}. Zdefiniujmy więc funkcję \textit{Q(s,a)}, gdzie \textit{s} to stan, zaś \textit{a} to akcja możliwa do wykonania w danym stanie. Funkcja ta reprezentuje możliwie największy wynik pod koniec gry, w przypadku podjęcia akcji \textbf{a} w stanie \textbf{s}. Określona jest ona rekurencyjnym równaniem Bellmana:
 
 $$Q(s,a) =  r + \gamma max_{a'}Q(s',a')$$
 
@@ -208,12 +208,6 @@ mrożenie sieci &
 10 000 &
 Liczba iteracji, po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu.  \\
 \hline
-
-mrożenie sieci &
-10 000 &
-Liczba iteracji, po których mrożona jest sieć i zapisywana jej kopia do wyliczeń celu.  \\
-\hline
-
 
 metoda gradientu &
 RMSProp &
